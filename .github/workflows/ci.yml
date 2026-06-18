@@ -99,7 +99,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - if: matrix.eslint != '10'
-        run: pnpm --filter eslint-plugin-friday add -D --no-frozen-lockfile eslint@${{ matrix.eslint }}
+        env:
+          npm_config_frozen_lockfile: "false"
+        run: pnpm add -w -D eslint@${{ matrix.eslint }}
       - run: pnpm test
 
   build:

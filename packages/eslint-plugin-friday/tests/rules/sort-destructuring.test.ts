@@ -6,6 +6,10 @@ const ruleTester = createRuleTester();
 ruleTester.run("sort-destructuring", rule, {
   valid: [
     {
+      name: "computed key is ignored when sorting",
+      code: "const { [key]: value, a } = obj;",
+    },
+    {
       name: "alphabetically sorted without defaults",
       code: "const { a, b, c, d } = foo;",
     },

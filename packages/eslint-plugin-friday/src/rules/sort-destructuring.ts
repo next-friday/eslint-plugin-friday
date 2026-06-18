@@ -10,7 +10,7 @@ type PropertyInfo = {
 };
 
 const getPropertyName = (property: TSESTree.Property): string | undefined =>
-  property.key.type === AST_NODE_TYPES.Identifier
+  !property.computed && property.key.type === AST_NODE_TYPES.Identifier
     ? property.key.name
     : undefined;
 

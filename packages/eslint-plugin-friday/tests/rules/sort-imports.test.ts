@@ -6,6 +6,10 @@ const ruleTester = createRuleTester();
 ruleTester.run("sort-imports", rule, {
   valid: [
     {
+      name: "bare parent import '..' groups before relative",
+      code: `import a from "..";\n\nimport b from "./local";`,
+    },
+    {
       name: "correct order: all groups with blank lines",
       code: `
 import "./setup";

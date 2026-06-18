@@ -133,6 +133,12 @@ ruleTester.run("jsx-sort-properties", rule, {
   ],
   invalid: [
     {
+      name: "unsorted props with a comment are reported but not auto-fixed",
+      code: `<Component value={x} /* keep */ title="hello" />`,
+      filename: "Component.tsx",
+      errors: [{ messageId: "unsortedProps" }],
+    },
+    {
       name: "shorthand before string",
       code: `<Component disabled title="hello" />`,
       filename: "Component.tsx",

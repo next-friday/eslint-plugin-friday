@@ -11,6 +11,7 @@ const DEVELOPER_FUNCTION_PARENT_TYPES = [
   AST_NODE_TYPES.AssignmentExpression,
   AST_NODE_TYPES.Property,
   AST_NODE_TYPES.MethodDefinition,
+  AST_NODE_TYPES.ExportDefaultDeclaration,
 ] as const;
 
 const isDeveloperFunction = (node: FunctionNode): boolean => {

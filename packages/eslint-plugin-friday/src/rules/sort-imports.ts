@@ -50,7 +50,7 @@ const getImportGroup = (node: TSESTree.ImportDeclaration): number => {
     return isType ? 7 : 6;
   }
 
-  if (source.startsWith("../")) {
+  if (source === ".." || source.startsWith("../")) {
     return isType ? 9 : 8;
   }
 

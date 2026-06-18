@@ -4,6 +4,7 @@ import {
   type TSESTree,
 } from "@typescript-eslint/utils";
 
+import { groupHasComment } from "../fixers/sorting.js";
 import { isJsxFile } from "../text/filename.js";
 import { createRule } from "../core/create-rule.js";
 
@@ -133,6 +134,10 @@ const sortSegment = (
   sourceCode: Readonly<TSESLint.SourceCode>,
   fixer: TSESLint.RuleFixer,
 ): TSESLint.RuleFix[] => {
+  if (groupHasComment(segment, sourceCode)) {
+    return [];
+  }
+
   const sorted = segment.toSorted(
     (a, b) => (getTypeGroup(a) ?? 0) - (getTypeGroup(b) ?? 0),
   );

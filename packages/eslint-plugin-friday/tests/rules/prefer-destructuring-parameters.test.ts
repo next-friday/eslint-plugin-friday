@@ -90,6 +90,11 @@ ruleTester.run("prefer-destructuring-parameters", rule, {
   ],
   invalid: [
     {
+      name: "default-exported arrow with three positional parameters",
+      code: `export default (oneParam, twoParam, threeParam) => {};`,
+      errors: [{ messageId: "preferDestructuring" }],
+    },
+    {
       name: "three positional parameters",
       code: `function foo(oneParam, twoParam, threeParam) {}`,
       errors: [{ messageId: "preferDestructuring" }],

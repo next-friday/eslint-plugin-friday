@@ -64,15 +64,15 @@
     "emoji-regex": "^10.6.0"
   },
   "devDependencies": {
-    "@typescript-eslint/rule-tester": "^8.61.0",
-    "@vitest/coverage-v8": "^4.1.8",
+    "@typescript-eslint/rule-tester": "^8.62.0",
+    "@vitest/coverage-v8": "^4.1.9",
     "dependency-cruiser": "^17.4.3",
     "eslint": "^10",
     "eslint-doc-generator": "^3.6.0",
     "tsdown": "^0.22",
     "typescript": "^6",
-    "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {
     "eslint": ">=9"

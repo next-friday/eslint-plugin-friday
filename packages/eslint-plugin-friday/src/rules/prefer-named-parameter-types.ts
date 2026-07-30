@@ -9,9 +9,7 @@ import { isReactComponentFunction } from "../ast/jsx.js";
 import { createRule } from "../core/create-rule.js";
 
 type CheckedNode =
-  | FunctionNode
-  | TSESTree.TSMethodSignature
-  | TSESTree.MethodDefinition;
+  FunctionNode | TSESTree.TSMethodSignature | TSESTree.MethodDefinition;
 
 const hasInlineObjectType = (parameter: TSESTree.Parameter): boolean =>
   getParameterTypeAnnotation(parameter)?.type === AST_NODE_TYPES.TSTypeLiteral;

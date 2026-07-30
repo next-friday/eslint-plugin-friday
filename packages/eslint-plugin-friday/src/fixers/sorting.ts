@@ -7,12 +7,16 @@ import {
 export const compareNames = (a: string, b: string): number =>
   a.localeCompare(b);
 
+export const compareText = (a: string, b: string): number =>
+  Number(a > b) - Number(a < b);
+
 export const findFirstUnsorted = <T extends { group: number }>(
   entries: readonly T[],
+  compare: (a: T, b: T) => number = (a, b) => a.group - b.group,
 ): { current: T; previous: T } | undefined => {
   const index = entries.findIndex(
     (entry, position) =>
-      position > 0 && entry.group < entries[position - 1].group,
+      position > 0 && compare(entry, entries[position - 1]) < 0,
   );
 
   if (index === -1) {

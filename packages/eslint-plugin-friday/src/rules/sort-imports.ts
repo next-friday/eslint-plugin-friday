@@ -1,7 +1,11 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
 import { NODE_BUILTINS } from "../constants/node-builtins.js";
-import { findFirstUnsorted, reorderNodesByText } from "../fixers/sorting.js";
+import {
+  compareText,
+  findFirstUnsorted,
+  reorderNodesByText,
+} from "../fixers/sorting.js";
 import { createRule } from "../core/create-rule.js";
 
 const GROUP_NAMES = [
@@ -22,6 +26,7 @@ const GROUP_NAMES = [
 type ImportEntry = {
   node: TSESTree.ImportDeclaration;
   group: number;
+  text: string;
 };
 
 const isTypeOnlyImport = (node: TSESTree.ImportDeclaration): boolean =>
@@ -64,17 +69,20 @@ const getImportGroup = (node: TSESTree.ImportDeclaration): number => {
 const getMainGroup = (group: number): number =>
   group === 1 ? 1 : Math.floor((group - 2) / 2) + 2;
 
+const compareImports = (a: ImportEntry, b: ImportEntry): number =>
+  a.group - b.group || compareText(a.text, b.text);
+
 export default createRule({
   name: "sort-imports",
   meta: {
     type: "suggestion",
     docs: {
-      description: "Enforce a consistent ordering of import groups",
+      description: "Enforce a consistent ordering of import declarations",
     },
     fixable: "code",
     messages: {
       unsortedImports:
-        "Import group '{{current}}' should come before '{{previous}}'. Expected order: side-effect, builtin, external, internal alias, parent relative, relative — each followed by its type imports.",
+        "Import declarations are not in the expected order. Sort by group, then by complete declaration text using case-sensitive ascending order.",
       missingBlankLine:
         "Expected a blank line before '{{current}}' imports (new group after '{{previous}}').",
     },
@@ -113,7 +121,7 @@ export default createRule({
     };
 
     const checkOrder = (imports: readonly ImportEntry[]): boolean => {
-      const unsorted = findFirstUnsorted(imports);
+      const unsorted = findFirstUnsorted(imports, compareImports);
 
       if (!unsorted) {
         return false;
@@ -122,16 +130,10 @@ export default createRule({
       context.report({
         node: unsorted.current.node,
         messageId: "unsortedImports",
-        data: {
-          current: GROUP_NAMES[unsorted.current.group],
-          previous: GROUP_NAMES[unsorted.previous.group],
-        },
         fix: (fixer) =>
           reorderNodesByText(
             imports.map((entry) => entry.node),
-            imports
-              .toSorted((a, b) => a.group - b.group)
-              .map((entry) => entry.node),
+            imports.toSorted(compareImports).map((entry) => entry.node),
             sourceCode,
             fixer,
           ),
@@ -157,7 +159,11 @@ export default createRule({
             continue;
           }
 
-          group.push({ node: statement, group: getImportGroup(statement) });
+          group.push({
+            node: statement,
+            group: getImportGroup(statement),
+            text: sourceCode.getText(statement),
+          });
         }
 
         flush();

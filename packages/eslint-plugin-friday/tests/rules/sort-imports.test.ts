@@ -30,8 +30,8 @@ import { foo } from "../foo";`,
       name: "all same group (external)",
       code: `
 import React from "react";
-import { useState } from "react";
-import lodash from "lodash";`,
+import lodash from "lodash";
+import { useState } from "react";`,
     },
     {
       name: "type imports follow their own group",
@@ -61,9 +61,9 @@ import React from "react";`,
       code: `
 import React from "react";
 
-import { utils } from "@/lib/utils";
 import { helper } from "~/helpers";
-import { token } from "#auth/token";`,
+import { token } from "#auth/token";
+import { utils } from "@/lib/utils";`,
     },
     {
       name: "relative imports together",
@@ -129,6 +129,76 @@ import type { Bar } from "./bar";`,
     },
   ],
   invalid: [
+    {
+      name: "sorts external imports by complete declaration text",
+      code: `
+import friday from "eslint-plugin-friday";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import { globalIgnores } from "eslint/config";
+import globals from "globals";`,
+      output: `
+import friday from "eslint-plugin-friday";
+import globals from "globals";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import { globalIgnores } from "eslint/config";`,
+      errors: [{ messageId: "unsortedImports" }],
+    },
+    {
+      name: "uses case-sensitive deterministic ordering",
+      code: `
+import alpha from "alpha";
+import Zebra from "zebra";`,
+      output: `
+import Zebra from "zebra";
+import alpha from "alpha";`,
+      errors: [{ messageId: "unsortedImports" }],
+    },
+    {
+      name: "group order takes precedence over declaration text",
+      code: `
+import zebra from "zebra";
+import Alpha from "node:assert";`,
+      output: [
+        `
+import Alpha from "node:assert";
+import zebra from "zebra";`,
+        `
+import Alpha from "node:assert";
+
+import zebra from "zebra";`,
+      ],
+      errors: [{ messageId: "unsortedImports" }],
+    },
+    {
+      name: "sorts type-only imports within their subgroup",
+      code: `
+import type { Zebra } from "zebra";
+import type { Alpha } from "alpha";`,
+      output: `
+import type { Alpha } from "alpha";
+import type { Zebra } from "zebra";`,
+      errors: [{ messageId: "unsortedImports" }],
+    },
+    {
+      name: "moves multi-line declarations atomically",
+      code: `
+import {
+  Zebra,
+} from "zebra";
+import {
+  Alpha,
+} from "alpha";`,
+      output: `
+import {
+  Alpha,
+} from "alpha";
+import {
+  Zebra,
+} from "zebra";`,
+      errors: [{ messageId: "unsortedImports" }],
+    },
     {
       name: "skips autofix when a comment is present",
       code: `

@@ -4,11 +4,11 @@
 
 <!-- end auto-generated rule header -->
 
-Enforce a consistent ordering of import groups.
+Enforce a consistent ordering of import declarations.
 
 ## Rationale
 
-Grouping imports by origin makes a file's dependencies scannable: side-effects first, then builtins, externals, internal aliases, and finally relative paths, each immediately followed by its type-only imports. Consistent ordering reduces merge noise and makes missing or misplaced imports obvious.
+Grouping imports by origin makes a file's dependencies scannable: side-effects first, then builtins, externals, internal aliases, and finally relative paths, each immediately followed by its type-only imports. Sorting declarations within each group reduces merge noise and keeps equivalent files deterministic without editor-specific commands.
 
 ## Examples
 
@@ -27,7 +27,7 @@ import React from "react";
 import { foo } from "../foo";
 ```
 
-Imports are ordered by group: side-effect, builtin, external, internal alias such as `@/`, `~/`, or `#`, parent relative `../`, then relative `./` — each followed by its type imports. A blank line is expected between distinct top-level groups. Non-import statements reset the run, so each contiguous block of imports is checked independently. The fixer reorders imports and inserts missing blank lines. When the import run contains a comment, the reorder is skipped so it never strands the comment; the rule still reports.
+Imports are ordered by group: side-effect, builtin, external, internal alias such as `@/`, `~/`, or `#`, parent relative `../`, then relative `./` — each followed by its type imports. Within each subgroup, complete import declaration text is sorted case-sensitively in ascending JavaScript string order. A blank line is expected between distinct top-level groups. Non-import statements reset the run, so each contiguous block of imports is checked independently. The fixer moves whole declarations and inserts missing blank lines. When the import run contains a comment, the reorder is skipped so it never strands the comment; the rule still reports.
 
 ## Options
 

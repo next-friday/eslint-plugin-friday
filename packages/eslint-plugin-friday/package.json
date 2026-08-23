@@ -60,7 +60,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^8.64.0",
+    "@typescript-eslint/utils": "^8.67.0",
     "emoji-regex": "^10.6.0"
   },
   "devDependencies": {

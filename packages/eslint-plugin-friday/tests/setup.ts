@@ -5,9 +5,19 @@ RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;
 RuleTester.it = it;
 
-export const createRuleTester = (jsx = false): RuleTester =>
+export const fixtureCode = (
+  strings: TemplateStringsArray,
+  ...values: readonly unknown[]
+): string =>
+  strings.reduce(
+    (result, chunk, index) =>
+      result + chunk + (index < values.length ? String(values[index]) : ""),
+    "",
+  );
+
+export const createRuleTester = (isJsx = false): RuleTester =>
   new RuleTester(
-    jsx
+    isJsx
       ? {
           languageOptions: {
             parserOptions: {

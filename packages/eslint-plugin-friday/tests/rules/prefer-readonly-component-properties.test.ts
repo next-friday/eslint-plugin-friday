@@ -1,5 +1,5 @@
 import rule from "../../src/rules/prefer-readonly-component-properties.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -7,7 +7,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
   valid: [
     {
       name: "Readonly-wrapped interface props",
-      code: `
+      code: fixtureCode`
           interface Props {
             children: ReactNode;
           }
@@ -17,7 +17,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "Readonly-wrapped type alias props",
-      code: `
+      code: fixtureCode`
           type ComponentProps = {
             title: string;
             onClick: () => void;
@@ -28,7 +28,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "inline object type props",
-      code: `
+      code: fixtureCode`
           const Component = (props: { children: ReactNode }) => <div>{props.children}</div>;
         `,
       filename: "Component.tsx",
@@ -55,7 +55,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "component with more than one param",
-      code: `
+      code: fixtureCode`
           interface Props {
             title: string;
           }
@@ -65,7 +65,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "component with primitive param type",
-      code: `
+      code: fixtureCode`
           const Component = (text: string) => <div>{text}</div>;
         `,
       filename: "Component.tsx",
@@ -82,7 +82,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "component with destructured props param",
-      code: `
+      code: fixtureCode`
           interface Props {
             children: ReactNode;
           }
@@ -92,7 +92,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "component with untyped props param",
-      code: `
+      code: fixtureCode`
           const Component = (props) => <div>{props.children}</div>;
         `,
       filename: "Component.tsx",
@@ -101,14 +101,14 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
   invalid: [
     {
       name: "arrow component with interface props",
-      code: `
+      code: fixtureCode`
           interface Props {
             children: ReactNode;
           }
           const Component = (props: Props) => <div>{props.children}</div>;
         `,
       filename: "Component.tsx",
-      output: `
+      output: fixtureCode`
           interface Props {
             children: ReactNode;
           }
@@ -118,7 +118,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "arrow component with type alias props",
-      code: `
+      code: fixtureCode`
           type ComponentProps = {
             title: string;
             onClick: () => void;
@@ -126,7 +126,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
           const Component = (props: ComponentProps) => <div>{props.title}</div>;
         `,
       filename: "Component.tsx",
-      output: `
+      output: fixtureCode`
           type ComponentProps = {
             title: string;
             onClick: () => void;
@@ -137,7 +137,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "function declaration component",
-      code: `
+      code: fixtureCode`
           interface Props {
             data: string;
           }
@@ -146,7 +146,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
           }
         `,
       filename: "Component.tsx",
-      output: `
+      output: fixtureCode`
           interface Props {
             data: string;
           }
@@ -158,7 +158,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "function expression component",
-      code: `
+      code: fixtureCode`
           type Props = {
             config: string;
           };
@@ -167,7 +167,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
           };
         `,
       filename: "Component.tsx",
-      output: `
+      output: fixtureCode`
           type Props = {
             config: string;
           };
@@ -179,7 +179,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
     },
     {
       name: "component returning conditional JSX",
-      code: `
+      code: fixtureCode`
           interface LayoutProps {
             children: ReactNode;
             title?: string;
@@ -189,7 +189,7 @@ ruleTester.run("prefer-readonly-component-properties", rule, {
           };
         `,
       filename: "Component.tsx",
-      output: `
+      output: fixtureCode`
           interface LayoutProps {
             children: ReactNode;
             title?: string;

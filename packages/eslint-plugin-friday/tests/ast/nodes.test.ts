@@ -13,7 +13,7 @@ import {
   isJsxProducingExpression,
   isEnvironmentAccess,
   isProgramLevelNode,
-  typeNodeHasInlineObjectLiteral,
+  hasInlineObjectLiteralTypeNode,
   unwrapTSAsExpression,
 } from "../../src/ast/nodes.js";
 
@@ -128,10 +128,10 @@ describe("forEachFunctionParameter", () => {
   });
 });
 
-describe("typeNodeHasInlineObjectLiteral", () => {
+describe("hasInlineObjectLiteralTypeNode", () => {
   it("returns true for a type literal", () => {
     expect(
-      typeNodeHasInlineObjectLiteral(
+      hasInlineObjectLiteralTypeNode(
         node<TSESTree.TypeNode>(AST_NODE_TYPES.TSTypeLiteral),
       ),
     ).toBe(true);
@@ -154,13 +154,13 @@ describe("typeNodeHasInlineObjectLiteral", () => {
         },
       },
     );
-    expect(typeNodeHasInlineObjectLiteral(withLiteral)).toBe(true);
-    expect(typeNodeHasInlineObjectLiteral(withoutLiteral)).toBe(false);
+    expect(hasInlineObjectLiteralTypeNode(withLiteral)).toBe(true);
+    expect(hasInlineObjectLiteralTypeNode(withoutLiteral)).toBe(false);
   });
 
   it("returns false for a type reference without type arguments", () => {
     expect(
-      typeNodeHasInlineObjectLiteral(
+      hasInlineObjectLiteralTypeNode(
         node<TSESTree.TypeNode>(AST_NODE_TYPES.TSTypeReference),
       ),
     ).toBe(false);
@@ -182,12 +182,12 @@ describe("typeNodeHasInlineObjectLiteral", () => {
         types: [stringKeyword, booleanKeyword],
       },
     );
-    expect(typeNodeHasInlineObjectLiteral(unionWithLiteral)).toBe(true);
-    expect(typeNodeHasInlineObjectLiteral(unionWithoutLiteral)).toBe(false);
+    expect(hasInlineObjectLiteralTypeNode(unionWithLiteral)).toBe(true);
+    expect(hasInlineObjectLiteralTypeNode(unionWithoutLiteral)).toBe(false);
   });
 
   it("returns false for an unrelated type node", () => {
-    expect(typeNodeHasInlineObjectLiteral(stringKeyword)).toBe(false);
+    expect(hasInlineObjectLiteralTypeNode(stringKeyword)).toBe(false);
   });
 });
 
@@ -270,10 +270,11 @@ describe("isProgramLevelNode", () => {
   });
 
   it("returns false for any other parent", () => {
+    const blockParent = node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement);
     expect(
       isProgramLevelNode(
         node<TSESTree.Node>(AST_NODE_TYPES.VariableDeclaration, {
-          parent: node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement),
+          parent: blockParent,
         }),
       ),
     ).toBe(false);
@@ -311,106 +312,131 @@ describe("isEnvironmentAccess", () => {
   });
 
   it("returns false when the object is not a member expression", () => {
+    const identifierObject = node<TSESTree.Node>(AST_NODE_TYPES.Identifier);
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.Identifier),
+          object: identifierObject,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns true for process.env access", () => {
+    const processEnvironmentObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "process",
+        }),
+        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "env",
+        }),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "process",
-            }),
-            property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "env",
-            }),
-          }),
+          object: processEnvironmentObject,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns true for import.meta.env access", () => {
+    const importMetaEnvironmentObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Node>(AST_NODE_TYPES.MetaProperty),
+        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "env",
+        }),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Node>(AST_NODE_TYPES.MetaProperty),
-            property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "env",
-            }),
-          }),
+          object: importMetaEnvironmentObject,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns false when the inner object is not the process identifier", () => {
+    const globalThisEnvironmentObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "globalThis",
+        }),
+        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "env",
+        }),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "globalThis",
-            }),
-            property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "env",
-            }),
-          }),
+          object: globalThisEnvironmentObject,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns false when the inner property is not env", () => {
+    const processArgvObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "process",
+        }),
+        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "argv",
+        }),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "process",
-            }),
-            property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "argv",
-            }),
-          }),
+          object: processArgvObject,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns false when the inner object is not an identifier", () => {
+    const nestedMemberEnvironmentObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression),
+        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "env",
+        }),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression),
-            property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "env",
-            }),
-          }),
+          object: nestedMemberEnvironmentObject,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns false when the inner property is not an identifier", () => {
+    const literalEnvironmentPropertyObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
+          name: "process",
+        }),
+        property: node<TSESTree.Node>(AST_NODE_TYPES.Literal),
+      },
+    );
     expect(
       isEnvironmentAccess(
         node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-          object: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
-            object: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-              name: "process",
-            }),
-            property: node<TSESTree.Node>(AST_NODE_TYPES.Literal),
-          }),
+          object: literalEnvironmentPropertyObject,
         }),
       ),
     ).toBe(false);
@@ -474,10 +500,11 @@ describe("isGlobalScope", () => {
   });
 
   it("returns false for any other parent", () => {
+    const blockScopeParent = node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement);
     expect(
       isGlobalScope(
         node<TSESTree.VariableDeclaration>(AST_NODE_TYPES.VariableDeclaration, {
-          parent: node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement),
+          parent: blockScopeParent,
         }),
       ),
     ).toBe(false);
@@ -506,54 +533,65 @@ describe("isBooleanLiteral", () => {
 
 describe("hasBooleanTypeAnnotation", () => {
   it("returns true for an identifier annotated as boolean", () => {
+    const booleanTypeAnnotation = typeAnnotation(booleanKeyword);
     expect(
       hasBooleanTypeAnnotation(
         node<TSESTree.Parameter>(AST_NODE_TYPES.Identifier, {
-          typeAnnotation: typeAnnotation(booleanKeyword),
+          typeAnnotation: booleanTypeAnnotation,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns true for a declarator whose id is annotated as boolean", () => {
+    const booleanAnnotatedIdentifier = node<TSESTree.Identifier>(
+      AST_NODE_TYPES.Identifier,
+      {
+        typeAnnotation: typeAnnotation(booleanKeyword),
+      },
+    );
     expect(
       hasBooleanTypeAnnotation(
         node<TSESTree.VariableDeclarator>(AST_NODE_TYPES.VariableDeclarator, {
-          id: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-            typeAnnotation: typeAnnotation(booleanKeyword),
-          }),
+          id: booleanAnnotatedIdentifier,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns false for an identifier annotated as a non-boolean", () => {
+    const stringTypeAnnotation = typeAnnotation(stringKeyword);
     expect(
       hasBooleanTypeAnnotation(
         node<TSESTree.Parameter>(AST_NODE_TYPES.Identifier, {
-          typeAnnotation: typeAnnotation(stringKeyword),
+          typeAnnotation: stringTypeAnnotation,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns false for a declarator whose id is not an identifier", () => {
+    const objectPatternId = node<TSESTree.Node>(AST_NODE_TYPES.ObjectPattern);
     expect(
       hasBooleanTypeAnnotation(
         node<TSESTree.VariableDeclarator>(AST_NODE_TYPES.VariableDeclarator, {
-          id: node<TSESTree.Node>(AST_NODE_TYPES.ObjectPattern),
+          id: objectPatternId,
         }),
       ),
     ).toBe(false);
   });
 
   it("returns false for a declarator whose id has a non-boolean annotation", () => {
+    const stringAnnotatedIdentifier = node<TSESTree.Identifier>(
+      AST_NODE_TYPES.Identifier,
+      {
+        typeAnnotation: typeAnnotation(stringKeyword),
+      },
+    );
     expect(
       hasBooleanTypeAnnotation(
         node<TSESTree.VariableDeclarator>(AST_NODE_TYPES.VariableDeclarator, {
-          id: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-            typeAnnotation: typeAnnotation(stringKeyword),
-          }),
+          id: stringAnnotatedIdentifier,
         }),
       ),
     ).toBe(false);
@@ -611,14 +649,13 @@ describe("isJsxProducingExpression", () => {
         }),
       ),
     ).toBe(true);
+    const spreadElement = node<TSESTree.SpreadElement>(
+      AST_NODE_TYPES.SpreadElement,
+    );
     expect(
       isJsxProducingExpression(
         node<TSESTree.Expression>(AST_NODE_TYPES.ArrayExpression, {
-          elements: [
-            NULL,
-            node<TSESTree.SpreadElement>(AST_NODE_TYPES.SpreadElement),
-            numberLiteral,
-          ],
+          elements: [NULL, spreadElement, numberLiteral],
         }),
       ),
     ).toBe(false);
@@ -632,86 +669,87 @@ describe("isJsxProducingExpression", () => {
         }),
       ),
     ).toBe(true);
+    const jsxReturnBody = blockStatement([returnStatement(jsxElement)]);
     expect(
       isJsxProducingExpression(
         node<TSESTree.Expression>(AST_NODE_TYPES.FunctionExpression, {
-          body: blockStatement([returnStatement(jsxElement)]),
+          body: jsxReturnBody,
         }),
       ),
     ).toBe(true);
   });
 
   it("inspects array-returning method callbacks", () => {
+    const mapCallee = memberCallee("map");
+    const mapCallback = node<TSESTree.ArrowFunctionExpression>(
+      AST_NODE_TYPES.ArrowFunctionExpression,
+      { body: jsxElement },
+    );
     expect(
-      isJsxProducingExpression(
-        callExpression(memberCallee("map"), [
-          node<TSESTree.ArrowFunctionExpression>(
-            AST_NODE_TYPES.ArrowFunctionExpression,
-            { body: jsxElement },
-          ),
-        ]),
-      ),
+      isJsxProducingExpression(callExpression(mapCallee, [mapCallback])),
     ).toBe(true);
+    const filterCallee = memberCallee("filter");
+    const filterCallback = node<TSESTree.FunctionExpression>(
+      AST_NODE_TYPES.FunctionExpression,
+      {
+        body: blockStatement([returnStatement(jsxFragment)]),
+      },
+    );
     expect(
-      isJsxProducingExpression(
-        callExpression(memberCallee("filter"), [
-          node<TSESTree.FunctionExpression>(AST_NODE_TYPES.FunctionExpression, {
-            body: blockStatement([returnStatement(jsxFragment)]),
-          }),
-        ]),
-      ),
+      isJsxProducingExpression(callExpression(filterCallee, [filterCallback])),
     ).toBe(true);
   });
 
   it("returns false for an array-returning method with no usable callback", () => {
-    expect(
-      isJsxProducingExpression(callExpression(memberCallee("map"), [])),
-    ).toBe(false);
+    const emptyMapCallee = memberCallee("map");
+    expect(isJsxProducingExpression(callExpression(emptyMapCallee, []))).toBe(
+      false,
+    );
+    const mapWithNumberCallee = memberCallee("map");
     expect(
       isJsxProducingExpression(
-        callExpression(memberCallee("map"), [numberLiteral]),
+        callExpression(mapWithNumberCallee, [numberLiteral]),
       ),
     ).toBe(false);
   });
 
   it("returns false for a non-array-returning member call", () => {
+    const reduceCallee = memberCallee("reduce");
+    const reduceCallback = node<TSESTree.ArrowFunctionExpression>(
+      AST_NODE_TYPES.ArrowFunctionExpression,
+      { body: jsxElement },
+    );
     expect(
-      isJsxProducingExpression(
-        callExpression(memberCallee("reduce"), [
-          node<TSESTree.ArrowFunctionExpression>(
-            AST_NODE_TYPES.ArrowFunctionExpression,
-            { body: jsxElement },
-          ),
-        ]),
-      ),
+      isJsxProducingExpression(callExpression(reduceCallee, [reduceCallback])),
     ).toBe(false);
   });
 
   it("returns false for a call whose callee is not a member expression", () => {
+    const identifierCallee = node<TSESTree.Identifier>(
+      AST_NODE_TYPES.Identifier,
+    );
+    const plainCallback = node<TSESTree.ArrowFunctionExpression>(
+      AST_NODE_TYPES.ArrowFunctionExpression,
+      { body: jsxElement },
+    );
     expect(
       isJsxProducingExpression(
-        callExpression(node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier), [
-          node<TSESTree.ArrowFunctionExpression>(
-            AST_NODE_TYPES.ArrowFunctionExpression,
-            { body: jsxElement },
-          ),
-        ]),
+        callExpression(identifierCallee, [plainCallback]),
       ),
     ).toBe(false);
   });
 
   it("returns false for a member call whose property is not an identifier", () => {
+    const literalMemberCallee = node<TSESTree.MemberExpression>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        property: node<TSESTree.Literal>(AST_NODE_TYPES.Literal, {
+          value: "map",
+        }),
+      },
+    );
     expect(
-      isJsxProducingExpression(
-        callExpression(
-          node<TSESTree.MemberExpression>(AST_NODE_TYPES.MemberExpression, {
-            property: node<TSESTree.Literal>(AST_NODE_TYPES.Literal, {
-              value: "map",
-            }),
-          }),
-          [],
-        ),
-      ),
+      isJsxProducingExpression(callExpression(literalMemberCallee, [])),
     ).toBe(false);
   });
 
@@ -737,14 +775,15 @@ describe("isJsxProducingExpression", () => {
   });
 
   it("returns false for a block body with no jsx-producing return", () => {
+    const mixedReturnBody = blockStatement([
+      node<TSESTree.Statement>(AST_NODE_TYPES.ExpressionStatement),
+      returnStatement(NULL),
+      returnStatement(numberLiteral),
+    ]);
     expect(
       isJsxProducingExpression(
         node<TSESTree.Expression>(AST_NODE_TYPES.ArrowFunctionExpression, {
-          body: blockStatement([
-            node<TSESTree.Statement>(AST_NODE_TYPES.ExpressionStatement),
-            returnStatement(NULL),
-            returnStatement(numberLiteral),
-          ]),
+          body: mixedReturnBody,
         }),
       ),
     ).toBe(false);

@@ -2,7 +2,7 @@ import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
 import { TEST_FILE_SUFFIXES } from "../constants/test-file-suffixes.js";
 import { TEST_GLOBALS } from "../constants/test-globals.js";
-import { endsWithAny, getBasename } from "../text/filename.js";
+import { hasAnySuffix, getBasename } from "../text/filename.js";
 import { createRule } from "../core/create-rule.js";
 
 const getCalleeRootIdentifier = (
@@ -39,15 +39,15 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
-    if (endsWithAny(getBasename(context.filename), TEST_FILE_SUFFIXES)) {
+    if (hasAnySuffix(getBasename(context.filename), TEST_FILE_SUFFIXES)) {
       return {};
     }
 
-    let reported = false;
+    let isReported = false;
 
     return {
       CallExpression(node) {
-        if (reported) {
+        if (isReported) {
           return;
         }
 
@@ -57,7 +57,7 @@ export default createRule({
           return;
         }
 
-        reported = true;
+        isReported = true;
         context.report({ node, messageId: "requireTestFilename" });
       },
     };

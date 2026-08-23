@@ -61,9 +61,7 @@ export default createRule({
             messageId: "noDateNow",
             data: { utility: utilityName },
           });
-        }
-
-        if (node.callee.property.name === "parse") {
+        } else if (node.callee.property.name === "parse") {
           context.report({
             node,
             messageId: "noDateParse",

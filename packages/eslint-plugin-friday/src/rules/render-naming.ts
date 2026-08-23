@@ -1,10 +1,6 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
-import {
-  capitalize,
-  isPascalCase,
-  startsWithPrefixBoundary,
-} from "../text/casing.js";
+import { capitalize, isPascalCase, hasPrefixBoundary } from "../text/casing.js";
 import { isJsxProducingExpression, type FunctionNode } from "../ast/nodes.js";
 import { isJsxFile } from "../text/filename.js";
 import { ALLOW_OPTION_SCHEMA } from "../constants/allow-option-schema.js";
@@ -79,7 +75,7 @@ export default createRule<[{ allow: string[] }], "missingRenderPrefix">({
         }
 
         const { name } = node.id;
-        if (allowed.has(name) || startsWithPrefixBoundary(name, "render")) {
+        if (allowed.has(name) || hasPrefixBoundary(name, "render")) {
           return;
         }
 

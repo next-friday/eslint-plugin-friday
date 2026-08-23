@@ -1,5 +1,5 @@
 import rule from "../../src/rules/prefer-react-import-types.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -7,7 +7,7 @@ ruleTester.run("prefer-react-import-types", rule, {
   valid: [
     {
       name: "direct ReactNode import",
-      code: `
+      code: fixtureCode`
         import type { ReactNode } from "react";
         const Component = (props: { children: ReactNode }) => <div>{props.children}</div>;
       `,
@@ -15,7 +15,7 @@ ruleTester.run("prefer-react-import-types", rule, {
     },
     {
       name: "direct useState import",
-      code: `
+      code: fixtureCode`
         import { useState } from "react";
         const Component = () => {
           const [state, setState] = useState(0);
@@ -86,7 +86,7 @@ ruleTester.run("prefer-react-import-types", rule, {
   invalid: [
     {
       name: "React.ReactNode type reference",
-      code: `
+      code: fixtureCode`
         const Component = (props: { children: React.ReactNode }) => <div>{props.children}</div>;
       `,
       filename: "Component.tsx",
@@ -102,7 +102,7 @@ ruleTester.run("prefer-react-import-types", rule, {
     },
     {
       name: "React.useState call",
-      code: `
+      code: fixtureCode`
         const Component = () => {
           const [state, setState] = React.useState(0);
           return <div>{state}</div>;

@@ -12,7 +12,7 @@ const isNestedStructure = (node: TSESTree.Node): boolean => {
   );
 };
 
-const containsNestedStructure = (
+const hasNestedStructure = (
   node: TSESTree.ObjectExpression | TSESTree.ArrayExpression,
 ): boolean => {
   if (node.type === AST_NODE_TYPES.ObjectExpression) {
@@ -65,7 +65,7 @@ export default createRule({
         return;
       }
 
-      if (!containsNestedStructure(inner)) {
+      if (!hasNestedStructure(inner)) {
         return;
       }
 

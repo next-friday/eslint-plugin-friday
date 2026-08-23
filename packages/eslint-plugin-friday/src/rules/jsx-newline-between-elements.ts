@@ -1,7 +1,7 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
 import { isJsxFile } from "../text/filename.js";
-import { containsComment, isMultiLine } from "../ast/jsx.js";
+import { hasComment, isMultiLine } from "../ast/jsx.js";
 import { createRule } from "../core/create-rule.js";
 
 const SIGNIFICANT_JSX_CHILD_TYPES = [
@@ -59,7 +59,7 @@ export default createRule({
               .getText()
               .slice(current.range[1], next.range[0]);
 
-            if (containsComment(textBetween)) {
+            if (hasComment(textBetween)) {
               return [];
             }
 

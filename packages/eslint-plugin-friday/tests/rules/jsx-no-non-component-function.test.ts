@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-no-non-component-function.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -128,7 +128,7 @@ ruleTester.run("jsx-no-non-component-function", rule, {
     },
     {
       name: "helper function outside component",
-      code: String.raw`
+      code: fixtureCode`
         const helper = (name: string) => {
           const words = name.trim().split(/\s+/);
           if (words.length === 1) {

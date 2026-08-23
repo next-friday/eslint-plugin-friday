@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-newline-between-elements.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -118,7 +118,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
     },
     {
       name: "multi-line expression containers with empty line between",
-      code: `
+      code: fixtureCode`
           <div>
             {studentId && (
               <div>
@@ -137,7 +137,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
     },
     {
       name: "multi-line expression container followed by element with empty line",
-      code: `
+      code: fixtureCode`
           <div>
             {studentId && (
               <div>
@@ -348,7 +348,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
     },
     {
       name: "missing empty line between multi-line expression containers",
-      code: `
+      code: fixtureCode`
           <div>
             {studentId && (
               <div>
@@ -364,7 +364,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
         `,
       filename: "Component.tsx",
       errors: [{ messageId: "requireNewline" }],
-      output: `
+      output: fixtureCode`
           <div>
             {studentId && (
               <div>
@@ -382,7 +382,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
     },
     {
       name: "missing empty line between expression container and element",
-      code: `
+      code: fixtureCode`
           <div>
             {studentId && (
               <div>
@@ -396,7 +396,7 @@ ruleTester.run("jsx-newline-between-elements", rule, {
         `,
       filename: "Component.tsx",
       errors: [{ messageId: "requireNewline" }],
-      output: `
+      output: fixtureCode`
           <div>
             {studentId && (
               <div>

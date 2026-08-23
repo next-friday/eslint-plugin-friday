@@ -38,7 +38,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsdoc": "^63.0.13",
     "eslint-plugin-sonarjs": "^4.2.0",
-    "eslint-plugin-unicorn": "^65.0.1",
+    "eslint-plugin-unicorn": "^72.0.0",
     "eslint-remote-tester": "^4.0.4",
     "eslint-remote-tester-repositories": "^2.0.2",
     "husky": "^9",
@@ -48,19 +48,11 @@
     "sort-package-json": "^4",
     "turbo": "^2",
     "typescript": "^6",
-    "typescript-eslint": "^8.67"
+    "typescript-eslint": "^8.67.0"
   },
   "packageManager": "pnpm@10.18.2",
   "engines": {
     "node": ">=22.10.0",
     "pnpm": ">=9.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "brace-expansion": "5.0.9",
-      "fast-uri": "^3.1.5",
-      "js-yaml@^3.0.0": "3.15.1",
-      "js-yaml@^4.0.0": "4.3.1"
-    }
   }
 }

@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
-import { startsWithAnyPrefixBoundary, capitalize } from "../text/casing.js";
+import { hasAnyPrefixBoundary, capitalize } from "../text/casing.js";
 import { ALLOW_OPTION_SCHEMA } from "../constants/allow-option-schema.js";
 import { BOOLEAN_PREFIXES } from "../constants/boolean-prefixes.js";
 import {
@@ -62,10 +62,7 @@ export default createRule<[{ allow: string[] }], "missingPrefix">({
     const allowed = new Set(allow);
 
     const checkBooleanNaming = (name: string, node: TSESTree.Node): void => {
-      if (
-        allowed.has(name) ||
-        startsWithAnyPrefixBoundary(name, BOOLEAN_PREFIXES)
-      ) {
+      if (allowed.has(name) || hasAnyPrefixBoundary(name, BOOLEAN_PREFIXES)) {
         return;
       }
 

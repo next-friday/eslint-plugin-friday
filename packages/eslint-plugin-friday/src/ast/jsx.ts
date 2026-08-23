@@ -13,7 +13,7 @@ export const isMultiLine = (node: TSESTree.Node): boolean =>
 export const isWhitespaceJsxText = (node: TSESTree.JSXChild): boolean =>
   node.type === AST_NODE_TYPES.JSXText && node.value.trim() === "";
 
-export const containsComment = (text: string): boolean =>
+export const hasComment = (text: string): boolean =>
   text.includes("//") || text.includes("/*");
 
 export const unwrapTypeAssertion = (
@@ -38,14 +38,14 @@ export const isNamedJsxElement = (node: TSESTree.Node, name: string): boolean =>
   node.openingElement.name.type === AST_NODE_TYPES.JSXIdentifier &&
   node.openingElement.name.name === name;
 
-export const findAncestor = (
+export const hasAncestor = (
   node: TSESTree.Node,
-  predicate: (current: TSESTree.Node) => boolean,
+  isMatch: (current: TSESTree.Node) => boolean,
 ): boolean => {
   let current: TSESTree.Node | undefined = node.parent;
 
   while (current) {
-    if (predicate(current)) {
+    if (isMatch(current)) {
       return true;
     }
     current = current.parent;
@@ -54,23 +54,25 @@ export const findAncestor = (
   return false;
 };
 
-const conditionalReturnsJsx = (node: TSESTree.ConditionalExpression): boolean =>
+const hasJsxConditionalBranch = (
+  node: TSESTree.ConditionalExpression,
+): boolean =>
   isJsxElementOrFragment(node.consequent) ||
   isJsxElementOrFragment(node.alternate);
 
-const logicalReturnsJsx = (node: TSESTree.LogicalExpression): boolean =>
+const hasJsxLogicalRightOperand = (node: TSESTree.LogicalExpression): boolean =>
   isJsxElementOrFragment(node.right);
 
-const blockReturnsJsx = (block: TSESTree.BlockStatement): boolean =>
+const hasJsxReturn = (block: TSESTree.BlockStatement): boolean =>
   block.body.some(
     (statement) =>
       statement.type === AST_NODE_TYPES.ReturnStatement &&
       statement.argument !== null &&
       (isJsxElementOrFragment(statement.argument) ||
         (statement.argument.type === AST_NODE_TYPES.ConditionalExpression &&
-          conditionalReturnsJsx(statement.argument)) ||
+          hasJsxConditionalBranch(statement.argument)) ||
         (statement.argument.type === AST_NODE_TYPES.LogicalExpression &&
-          logicalReturnsJsx(statement.argument))),
+          hasJsxLogicalRightOperand(statement.argument))),
   );
 
 export const isReactComponentFunction = (
@@ -87,7 +89,6 @@ export const isReactComponentFunction = (
   }
 
   return (
-    node.body.type === AST_NODE_TYPES.BlockStatement &&
-    blockReturnsJsx(node.body)
+    node.body.type === AST_NODE_TYPES.BlockStatement && hasJsxReturn(node.body)
   );
 };

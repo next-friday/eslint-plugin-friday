@@ -1,7 +1,7 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
 import { isJsxFile } from "../text/filename.js";
-import { findAncestor, isNamedJsxElement } from "../ast/jsx.js";
+import { hasAncestor, isNamedJsxElement } from "../ast/jsx.js";
 import { createRule } from "../core/create-rule.js";
 
 const isLazyCall = (callee: TSESTree.CallExpression["callee"]): boolean =>
@@ -52,7 +52,7 @@ export default createRule({
 
         if (
           lazyComponents.has(componentName) &&
-          !findAncestor(node, (current) =>
+          !hasAncestor(node, (current) =>
             isNamedJsxElement(current, "Suspense"),
           )
         ) {

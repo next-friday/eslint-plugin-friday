@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-no-newline-single-line-elements.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -89,7 +89,7 @@ ruleTester.run("jsx-no-newline-single-line-elements", rule, {
     },
     {
       name: "expression between elements breaks adjacency",
-      code: `
+      code: fixtureCode`
           <div>
             <Headerstrip />
             <Header />

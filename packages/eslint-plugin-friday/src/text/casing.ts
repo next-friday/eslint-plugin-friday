@@ -33,10 +33,7 @@ export const stripSurroundingUnderscores = (name: string): string => {
   return name.slice(start, end);
 };
 
-export const startsWithPrefixBoundary = (
-  name: string,
-  prefix: string,
-): boolean => {
+export const hasPrefixBoundary = (name: string, prefix: string): boolean => {
   if (!name.startsWith(prefix)) {
     return false;
   }
@@ -54,7 +51,7 @@ export const startsWithPrefixBoundary = (
   );
 };
 
-export const startsWithAnyPrefixBoundary = (
+export const hasAnyPrefixBoundary = (
   name: string,
   prefixes: readonly string[],
-): boolean => prefixes.some((prefix) => startsWithPrefixBoundary(name, prefix));
+): boolean => prefixes.some((prefix) => hasPrefixBoundary(name, prefix));

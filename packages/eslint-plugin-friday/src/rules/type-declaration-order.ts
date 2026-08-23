@@ -21,7 +21,10 @@ const getTypeDeclarationName = (
   return undefined;
 };
 
-const declaresTypeParameter = (node: TSESTree.Node, name: string): boolean => {
+const hasTypeParameterDeclaration = (
+  node: TSESTree.Node,
+  name: string,
+): boolean => {
   if (
     !("typeParameters" in node) ||
     node.typeParameters?.type !== AST_NODE_TYPES.TSTypeParameterDeclaration
@@ -34,14 +37,14 @@ const declaresTypeParameter = (node: TSESTree.Node, name: string): boolean => {
   );
 };
 
-const resolvesToTypeParameter = (
+const isTypeParameterReference = (
   node: TSESTree.Node,
   name: string,
 ): boolean => {
   let current: TSESTree.Node | undefined = node.parent;
 
   while (current) {
-    if (declaresTypeParameter(current, name)) {
+    if (hasTypeParameterDeclaration(current, name)) {
       return true;
     }
 
@@ -95,7 +98,7 @@ export default createRule({
           return;
         }
 
-        if (resolvesToTypeParameter(node, referencedName)) {
+        if (isTypeParameterReference(node, referencedName)) {
           return;
         }
 

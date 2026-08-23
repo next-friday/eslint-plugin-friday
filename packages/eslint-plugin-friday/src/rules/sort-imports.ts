@@ -36,7 +36,7 @@ const getImportGroup = (node: TSESTree.ImportDeclaration): number => {
   const source = node.source.value;
   const isType = isTypeOnlyImport(node);
 
-  if (node.specifiers.length === 0 && !isType) {
+  if (!isType && node.specifiers.length === 0) {
     return 1;
   }
 
@@ -120,7 +120,7 @@ export default createRule({
       }
     };
 
-    const checkOrder = (imports: readonly ImportEntry[]): boolean => {
+    const isOrderValid = (imports: readonly ImportEntry[]): boolean => {
       const unsorted = findFirstUnsorted(imports, compareImports);
 
       if (!unsorted) {
@@ -147,7 +147,7 @@ export default createRule({
         let group: ImportEntry[] = [];
 
         const flush = (): void => {
-          if (group.length > 0 && !checkOrder(group)) {
+          if (group.length > 0 && !isOrderValid(group)) {
             checkBlankLines(group);
           }
           group = [];

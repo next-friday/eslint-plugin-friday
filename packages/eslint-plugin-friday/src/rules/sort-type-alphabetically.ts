@@ -4,7 +4,7 @@ import {
   compareNames,
   getObjectTypeMembers,
   getPropertySignatures,
-  groupHasComment,
+  hasGroupComment,
   partitionByOptional,
 } from "../fixers/sorting.js";
 import { createRule } from "../core/create-rule.js";
@@ -44,7 +44,7 @@ const fixMembers = (
 ): TSESLint.RuleFix[] => {
   const properties = getPropertySignatures(members);
 
-  if (groupHasComment(properties, sourceCode)) {
+  if (hasGroupComment(properties, sourceCode)) {
     return [];
   }
 

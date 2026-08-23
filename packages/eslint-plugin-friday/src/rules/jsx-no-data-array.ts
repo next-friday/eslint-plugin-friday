@@ -49,7 +49,9 @@ export default createRule({
         return;
       }
 
-      if (!arrayInit.elements.some((element) => isObjectLikeElement(element))) {
+      if (
+        arrayInit.elements.every((element) => !isObjectLikeElement(element))
+      ) {
         return;
       }
 

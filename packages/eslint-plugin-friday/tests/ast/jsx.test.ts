@@ -2,8 +2,8 @@ import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 import { describe, expect, it } from "vitest";
 
 import {
-  containsComment,
-  findAncestor,
+  hasComment,
+  hasAncestor,
   isJsxElementOrFragment,
   isMultiLine,
   isNamedJsxElement,
@@ -110,17 +110,17 @@ describe("isWhitespaceJsxText", () => {
   });
 });
 
-describe("containsComment", () => {
+describe("hasComment", () => {
   it("returns true for a line comment marker", () => {
-    expect(containsComment("a // b")).toBe(true);
+    expect(hasComment("a // b")).toBe(true);
   });
 
   it("returns true for a block comment marker", () => {
-    expect(containsComment("a /* b */")).toBe(true);
+    expect(hasComment("a /* b */")).toBe(true);
   });
 
   it("returns false for text with no comment marker", () => {
-    expect(containsComment("a + b")).toBe(false);
+    expect(hasComment("a + b")).toBe(false);
   });
 });
 
@@ -144,12 +144,16 @@ describe("unwrapTypeAssertion", () => {
   });
 
   it("unwraps nested satisfies and as expressions to the innermost node", () => {
+    const asExpression = node<TSESTree.Expression>(
+      AST_NODE_TYPES.TSAsExpression,
+      {
+        expression: jsxFragment,
+      },
+    );
     expect(
       unwrapTypeAssertion(
         node<TSESTree.Expression>(AST_NODE_TYPES.TSSatisfiesExpression, {
-          expression: node<TSESTree.Expression>(AST_NODE_TYPES.TSAsExpression, {
-            expression: jsxFragment,
-          }),
+          expression: asExpression,
         }),
       ),
     ).toBe(jsxFragment);
@@ -158,13 +162,17 @@ describe("unwrapTypeAssertion", () => {
 
 describe("isNamedJsxElement", () => {
   it("returns true when the element name matches", () => {
+    const fragmentName = node<TSESTree.JSXIdentifier>(
+      AST_NODE_TYPES.JSXIdentifier,
+      {
+        name: "Fragment",
+      },
+    );
     expect(
       isNamedJsxElement(
         node<TSESTree.Node>(AST_NODE_TYPES.JSXElement, {
           openingElement: {
-            name: node<TSESTree.JSXIdentifier>(AST_NODE_TYPES.JSXIdentifier, {
-              name: "Fragment",
-            }),
+            name: fragmentName,
           },
         }),
         "Fragment",
@@ -173,13 +181,17 @@ describe("isNamedJsxElement", () => {
   });
 
   it("returns false when the element name differs", () => {
+    const otherName = node<TSESTree.JSXIdentifier>(
+      AST_NODE_TYPES.JSXIdentifier,
+      {
+        name: "Other",
+      },
+    );
     expect(
       isNamedJsxElement(
         node<TSESTree.Node>(AST_NODE_TYPES.JSXElement, {
           openingElement: {
-            name: node<TSESTree.JSXIdentifier>(AST_NODE_TYPES.JSXIdentifier, {
-              name: "Other",
-            }),
+            name: otherName,
           },
         }),
         "Fragment",
@@ -188,11 +200,14 @@ describe("isNamedJsxElement", () => {
   });
 
   it("returns false when the opening name is not an identifier", () => {
+    const memberExpressionName = node<TSESTree.Node>(
+      AST_NODE_TYPES.JSXMemberExpression,
+    );
     expect(
       isNamedJsxElement(
         node<TSESTree.Node>(AST_NODE_TYPES.JSXElement, {
           openingElement: {
-            name: node<TSESTree.Node>(AST_NODE_TYPES.JSXMemberExpression),
+            name: memberExpressionName,
           },
         }),
         "Fragment",
@@ -205,7 +220,7 @@ describe("isNamedJsxElement", () => {
   });
 });
 
-describe("findAncestor", () => {
+describe("hasAncestor", () => {
   it("returns true when an ancestor satisfies the predicate", () => {
     const grandparent = node<TSESTree.Node>(AST_NODE_TYPES.Program);
     const parent = node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement, {
@@ -213,7 +228,7 @@ describe("findAncestor", () => {
     });
     const child = node<TSESTree.Node>(AST_NODE_TYPES.Identifier, { parent });
     expect(
-      findAncestor(child, (current) => current.type === AST_NODE_TYPES.Program),
+      hasAncestor(child, (current) => current.type === AST_NODE_TYPES.Program),
     ).toBe(true);
   });
 
@@ -221,13 +236,13 @@ describe("findAncestor", () => {
     const parent = node<TSESTree.Node>(AST_NODE_TYPES.BlockStatement);
     const child = node<TSESTree.Node>(AST_NODE_TYPES.Identifier, { parent });
     expect(
-      findAncestor(child, (current) => current.type === AST_NODE_TYPES.Program),
+      hasAncestor(child, (current) => current.type === AST_NODE_TYPES.Program),
     ).toBe(false);
   });
 
   it("returns false when the node has no parent", () => {
     expect(
-      findAncestor(node<TSESTree.Node>(AST_NODE_TYPES.Identifier), () => true),
+      hasAncestor(node<TSESTree.Node>(AST_NODE_TYPES.Identifier), () => true),
     ).toBe(false);
   });
 });
@@ -245,54 +260,63 @@ describe("isReactComponentFunction", () => {
   });
 
   it("returns true for a block that returns jsx directly", () => {
+    const directReturnBody = blockStatement([returnStatement(jsxFragment)]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionDeclaration>(AST_NODE_TYPES.FunctionDeclaration, {
-          body: blockStatement([returnStatement(jsxFragment)]),
+          body: directReturnBody,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns true for a block whose conditional consequent is jsx", () => {
+    const conditionalConsequentBody = blockStatement([
+      returnStatement(conditional(jsxElement, numberLiteral)),
+    ]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionExpression>(AST_NODE_TYPES.FunctionExpression, {
-          body: blockStatement([
-            returnStatement(conditional(jsxElement, numberLiteral)),
-          ]),
+          body: conditionalConsequentBody,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns true for a block whose conditional alternate is jsx", () => {
+    const conditionalAlternateBody = blockStatement([
+      returnStatement(conditional(numberLiteral, jsxFragment)),
+    ]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionExpression>(AST_NODE_TYPES.FunctionExpression, {
-          body: blockStatement([
-            returnStatement(conditional(numberLiteral, jsxFragment)),
-          ]),
+          body: conditionalAlternateBody,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns true for a block that returns a jsx-producing logical expression", () => {
+    const logicalJsxBody = blockStatement([
+      returnStatement(logical(jsxElement)),
+    ]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionExpression>(AST_NODE_TYPES.FunctionExpression, {
-          body: blockStatement([returnStatement(logical(jsxElement))]),
+          body: logicalJsxBody,
         }),
       ),
     ).toBe(true);
   });
 
   it("returns false for a block whose logical return yields no jsx", () => {
+    const logicalNonJsxBody = blockStatement([
+      returnStatement(logical(numberLiteral)),
+    ]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionExpression>(AST_NODE_TYPES.FunctionExpression, {
-          body: blockStatement([returnStatement(logical(numberLiteral))]),
+          body: logicalNonJsxBody,
         }),
       ),
     ).toBe(false);
@@ -310,14 +334,15 @@ describe("isReactComponentFunction", () => {
   });
 
   it("returns false for a block with no jsx-producing return", () => {
+    const asExpression0 = blockStatement([
+      node<TSESTree.Statement>(AST_NODE_TYPES.ExpressionStatement),
+      returnStatement(NULL),
+      returnStatement(numberLiteral),
+    ]);
     expect(
       isReactComponentFunction(
         node<TSESTree.FunctionDeclaration>(AST_NODE_TYPES.FunctionDeclaration, {
-          body: blockStatement([
-            node<TSESTree.Statement>(AST_NODE_TYPES.ExpressionStatement),
-            returnStatement(NULL),
-            returnStatement(numberLiteral),
-          ]),
+          body: asExpression0,
         }),
       ),
     ).toBe(false);

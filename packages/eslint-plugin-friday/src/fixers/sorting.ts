@@ -29,7 +29,7 @@ export const findFirstUnsorted = <T extends { group: number }>(
 const isMemberSeparator = (token: TSESTree.Token): boolean =>
   token.value === "," || token.value === ";";
 
-const nodeHasComment = (
+const hasNodeComment = (
   node: TSESTree.Node,
   sourceCode: Readonly<TSESLint.SourceCode>,
 ): boolean => {
@@ -48,10 +48,10 @@ const nodeHasComment = (
   );
 };
 
-export const groupHasComment = (
+export const hasGroupComment = (
   nodes: readonly TSESTree.Node[],
   sourceCode: Readonly<TSESLint.SourceCode>,
-): boolean => nodes.some((node) => nodeHasComment(node, sourceCode));
+): boolean => nodes.some((node) => hasNodeComment(node, sourceCode));
 
 export const reorderNodesByText = (
   nodes: readonly TSESTree.Node[],
@@ -59,7 +59,7 @@ export const reorderNodesByText = (
   sourceCode: Readonly<TSESLint.SourceCode>,
   fixer: TSESLint.RuleFixer,
 ): TSESLint.RuleFix[] => {
-  if (groupHasComment(nodes, sourceCode)) {
+  if (hasGroupComment(nodes, sourceCode)) {
     return [];
   }
 

@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-simple-properties.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const DOLLAR = "$";
 
@@ -19,7 +19,7 @@ ruleTester.run("jsx-simple-properties", rule, {
     },
     {
       name: "simple variable",
-      code: `<Component value={foo} />`,
+      code: fixtureCode`<Component value={foo} />`,
       filename: "Component.tsx",
     },
     {
@@ -34,12 +34,12 @@ ruleTester.run("jsx-simple-properties", rule, {
     },
     {
       name: "member expression",
-      code: `<Component value={foo.bar} />`,
+      code: fixtureCode`<Component value={foo.bar} />`,
       filename: "Component.tsx",
     },
     {
       name: "nested member expression",
-      code: `<Component value={foo.bar.baz} />`,
+      code: fixtureCode`<Component value={foo.bar.baz} />`,
       filename: "Component.tsx",
     },
     {
@@ -54,12 +54,12 @@ ruleTester.run("jsx-simple-properties", rule, {
     },
     {
       name: "boolean literal",
-      code: `<Component disabled={true} />`,
+      code: fixtureCode`<Component disabled={true} />`,
       filename: "Component.tsx",
     },
     {
       name: "null literal",
-      code: `<Component value={null} />`,
+      code: fixtureCode`<Component value={null} />`,
       filename: "Component.tsx",
     },
     {
@@ -69,7 +69,7 @@ ruleTester.run("jsx-simple-properties", rule, {
     },
     {
       name: "undefined identifier",
-      code: `<Component value={undefined} />`,
+      code: fixtureCode`<Component value={undefined} />`,
       filename: "Component.tsx",
     },
     {
@@ -156,7 +156,7 @@ ruleTester.run("jsx-simple-properties", rule, {
     },
     {
       name: "template literal with expressions",
-      code: `<Component value={\`template ${DOLLAR}{name}\`} />`,
+      code: fixtureCode`<Component value={\`template ${DOLLAR}{name}\`} />`,
       filename: "Component.tsx",
       errors: [{ messageId: "noComplexProp" }],
     },

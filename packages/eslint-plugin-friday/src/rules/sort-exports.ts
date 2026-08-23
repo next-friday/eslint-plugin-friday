@@ -72,10 +72,12 @@ export default createRule({
         let group: ExportEntry[] = [];
 
         const flush = (): void => {
-          if (group.length > 0) {
-            checkOrder(group);
-            group = [];
+          if (group.length === 0) {
+            return;
           }
+
+          checkOrder(group);
+          group = [];
         };
 
         for (const statement of node.body) {

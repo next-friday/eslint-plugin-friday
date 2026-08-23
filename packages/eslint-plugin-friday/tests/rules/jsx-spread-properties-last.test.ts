@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-spread-properties-last.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -28,7 +28,7 @@ ruleTester.run("jsx-spread-properties-last", rule, {
     },
     {
       name: "spread last with multiple non-spread props",
-      code: `<Component baz="baz" foobar={foobar} {...bes} />`,
+      code: fixtureCode`<Component baz="baz" foobar={foobar} {...bes} />`,
       filename: "Component.tsx",
     },
     {
@@ -50,13 +50,13 @@ ruleTester.run("jsx-spread-properties-last", rule, {
   invalid: [
     {
       name: "spread before all other props",
-      code: `<Component {...bes} baz="baz" foobar={foobar} />`,
+      code: fixtureCode`<Component {...bes} baz="baz" foobar={foobar} />`,
       filename: "Component.tsx",
       errors: [{ messageId: "spreadNotLast" }],
     },
     {
       name: "spread between non-spread props",
-      code: `<Component baz="baz" {...bes} foobar={foobar} />`,
+      code: fixtureCode`<Component baz="baz" {...bes} foobar={foobar} />`,
       filename: "Component.tsx",
       errors: [{ messageId: "spreadNotLast" }],
     },

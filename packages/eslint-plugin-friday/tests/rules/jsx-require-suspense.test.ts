@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-require-suspense.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -27,7 +27,7 @@ ruleTester.run("jsx-require-suspense", rule, {
     },
     {
       name: "lazy component nested inside Suspense",
-      code: `
+      code: fixtureCode`
         const LazyModal = lazy(() => import("./Modal"));
         <Suspense fallback={null}>
           <div>

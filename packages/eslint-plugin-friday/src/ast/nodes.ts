@@ -25,7 +25,7 @@ export const forEachFunctionParameter = (
   }
 };
 
-export const typeNodeHasInlineObjectLiteral = (
+export const hasInlineObjectLiteralTypeNode = (
   node: TSESTree.TypeNode,
 ): boolean => {
   if (node.type === AST_NODE_TYPES.TSTypeLiteral) {
@@ -34,12 +34,12 @@ export const typeNodeHasInlineObjectLiteral = (
 
   if (node.type === AST_NODE_TYPES.TSTypeReference && node.typeArguments) {
     return node.typeArguments.params.some((parameter) =>
-      typeNodeHasInlineObjectLiteral(parameter),
+      hasInlineObjectLiteralTypeNode(parameter),
     );
   }
 
   if (node.type === AST_NODE_TYPES.TSUnionType) {
-    return node.types.some((type) => typeNodeHasInlineObjectLiteral(type));
+    return node.types.some((type) => hasInlineObjectLiteralTypeNode(type));
   }
 
   return false;
@@ -204,7 +204,7 @@ export const isJsxProducingExpression = (
     node.type === AST_NODE_TYPES.ArrowFunctionExpression ||
     node.type === AST_NODE_TYPES.FunctionExpression
   ) {
-    return functionBodyReturnsJsx(node.body);
+    return hasJsxFunctionBody(node.body);
   }
 
   if (
@@ -219,7 +219,7 @@ export const isJsxProducingExpression = (
       (callback.type === AST_NODE_TYPES.ArrowFunctionExpression ||
         callback.type === AST_NODE_TYPES.FunctionExpression)
     ) {
-      return functionBodyReturnsJsx(callback.body);
+      return hasJsxFunctionBody(callback.body);
     }
   }
 
@@ -233,7 +233,7 @@ export const isJsxProducingExpression = (
   return false;
 };
 
-const functionBodyReturnsJsx = (
+const hasJsxFunctionBody = (
   body: TSESTree.BlockStatement | TSESTree.Expression,
 ): boolean => {
   if (body.type !== AST_NODE_TYPES.BlockStatement) {

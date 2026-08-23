@@ -37,6 +37,10 @@ ruleTester.run("no-direct-date", rule, {
       name: "should allow nested Date property",
       code: "const config = { Date: { now: () => 0 } }; config.Date.now();",
     },
+    {
+      name: "should allow other Date static methods",
+      code: "const timestamp = Date.UTC(2024, 0, 1);",
+    },
   ],
   invalid: [
     {

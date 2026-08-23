@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
-import { endsWithAny, getBasename } from "../text/filename.js";
+import { hasAnySuffix, getBasename } from "../text/filename.js";
 import { createRule } from "../core/create-rule.js";
 
 const HOOK_FILE_SUFFIXES = [".hook.ts", ".hooks.ts"] as const;
@@ -24,7 +24,7 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
-    if (endsWithAny(getBasename(context.filename), HOOK_FILE_SUFFIXES)) {
+    if (hasAnySuffix(getBasename(context.filename), HOOK_FILE_SUFFIXES)) {
       return {};
     }
 

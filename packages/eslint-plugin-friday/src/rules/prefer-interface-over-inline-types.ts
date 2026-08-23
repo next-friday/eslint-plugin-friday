@@ -1,7 +1,7 @@
 import { AST_NODE_TYPES } from "@typescript-eslint/utils";
 
 import {
-  typeNodeHasInlineObjectLiteral,
+  hasInlineObjectLiteralTypeNode,
   type FunctionNode,
 } from "../ast/nodes.js";
 import { isReactComponentFunction } from "../ast/jsx.js";
@@ -33,7 +33,7 @@ export default createRule({
       if (
         parameter.type !== AST_NODE_TYPES.Identifier ||
         !parameter.typeAnnotation ||
-        !typeNodeHasInlineObjectLiteral(parameter.typeAnnotation.typeAnnotation)
+        !hasInlineObjectLiteralTypeNode(parameter.typeAnnotation.typeAnnotation)
       ) {
         return;
       }

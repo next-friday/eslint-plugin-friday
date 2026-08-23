@@ -4,7 +4,7 @@ import {
   type TSESTree,
 } from "@typescript-eslint/utils";
 
-import { groupHasComment } from "../fixers/sorting.js";
+import { hasGroupComment } from "../fixers/sorting.js";
 import { isJsxFile } from "../text/filename.js";
 import { createRule } from "../core/create-rule.js";
 
@@ -134,7 +134,7 @@ const sortSegment = (
   sourceCode: Readonly<TSESLint.SourceCode>,
   fixer: TSESLint.RuleFixer,
 ): TSESLint.RuleFix[] => {
-  if (groupHasComment(segment, sourceCode)) {
+  if (hasGroupComment(segment, sourceCode)) {
     return [];
   }
 

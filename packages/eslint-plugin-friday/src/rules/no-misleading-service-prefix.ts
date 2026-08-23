@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
-import { startsWithPrefixBoundary } from "../text/casing.js";
+import { hasPrefixBoundary } from "../text/casing.js";
 import { BANNED_SERVICE_PREFIXES } from "../constants/banned-service-prefixes.js";
 import { createRule } from "../core/create-rule.js";
 
@@ -27,7 +27,7 @@ export default createRule({
     const checkFunctionName = (name: string, node: TSESTree.Node): void => {
       const matchedPrefix = Object.keys(BANNED_SERVICE_PREFIXES).find(
         (prefix) =>
-          name.length > prefix.length && startsWithPrefixBoundary(name, prefix),
+          name.length > prefix.length && hasPrefixBoundary(name, prefix),
       );
 
       if (matchedPrefix) {
@@ -47,7 +47,7 @@ export default createRule({
       node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression,
       id: TSESTree.Identifier | null,
     ): void => {
-      if (!node.async || !id) {
+      if (!id || !node.async) {
         return;
       }
 

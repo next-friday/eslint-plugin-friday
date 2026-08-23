@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  endsWithAny,
+  hasAnySuffix,
   getBaseName,
   getBasename,
   isConfigFile,
@@ -37,13 +37,13 @@ describe("getBaseName", () => {
   });
 });
 
-describe("endsWithAny", () => {
+describe("hasAnySuffix", () => {
   it("is true when one suffix matches", () => {
-    expect(endsWithAny("component.tsx", [".ts", ".tsx"])).toBe(true);
+    expect(hasAnySuffix("component.tsx", [".ts", ".tsx"])).toBe(true);
   });
 
   it("is false when no suffix matches", () => {
-    expect(endsWithAny("component.js", [".ts", ".tsx"])).toBe(false);
+    expect(hasAnySuffix("component.js", [".ts", ".tsx"])).toBe(false);
   });
 });
 

@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
-import { typeNodeHasInlineObjectLiteral } from "../ast/nodes.js";
+import { hasInlineObjectLiteralTypeNode } from "../ast/nodes.js";
 import { createRule } from "../core/create-rule.js";
 
 export default createRule({
@@ -30,7 +30,7 @@ export default createRule({
 
       if (typeNode.type === AST_NODE_TYPES.TSUnionType) {
         for (const member of typeNode.types) {
-          if (typeNodeHasInlineObjectLiteral(member)) {
+          if (hasInlineObjectLiteralTypeNode(member)) {
             reportInlineLiterals(member);
           }
         }

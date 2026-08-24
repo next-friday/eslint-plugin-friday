@@ -1,5 +1,5 @@
 import rule from "../../src/rules/jsx-sort-properties.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -7,7 +7,7 @@ ruleTester.run("jsx-sort-properties", rule, {
   valid: [
     {
       name: "correctly ordered props (all 8 groups)",
-      code: `<Component title="hello" aria-label="label" count={100} value={someVar} style={{ color: "red" }} onClick={() => {}} icon={<Icon />} disabled />`,
+      code: fixtureCode`<Component title="hello" aria-label="label" count={100} value={someVar} style={{ color: "red" }} onClick={() => {}} icon={<Icon />} disabled />`,
       filename: "Component.tsx",
     },
     {
@@ -22,12 +22,12 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "multiple number/boolean/null props",
-      code: `<Component count={42} enabled={true} value={null} />`,
+      code: fixtureCode`<Component count={42} enabled={true} value={null} />`,
       filename: "Component.tsx",
     },
     {
       name: "string before number before expression",
-      code: `<Component title="hello" count={42} value={someVar} />`,
+      code: fixtureCode`<Component title="hello" count={42} value={someVar} />`,
       filename: "Component.tsx",
     },
     {
@@ -47,7 +47,7 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "undefined as number/boolean/null group",
-      code: `<Component value={undefined} />`,
+      code: fixtureCode`<Component value={undefined} />`,
       filename: "Component.tsx",
     },
     {
@@ -67,12 +67,12 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "all-unknown props (identifiers)",
-      code: `<Component value={someVar} handler={someHandler} />`,
+      code: fixtureCode`<Component value={someVar} handler={someHandler} />`,
       filename: "Component.tsx",
     },
     {
       name: "string before expression before shorthand",
-      code: `<Component title="hello" value={someVar} disabled />`,
+      code: fixtureCode`<Component title="hello" value={someVar} disabled />`,
       filename: "Component.tsx",
     },
     {
@@ -82,12 +82,12 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "all eight groups in order",
-      code: `<Component title="hello" aria-label="label" count={42} value={ref} items={[1]} onClick={() => {}} icon={<A />} active />`,
+      code: fixtureCode`<Component title="hello" aria-label="label" count={42} value={ref} items={[1]} onClick={() => {}} icon={<A />} active />`,
       filename: "Component.tsx",
     },
     {
       name: "expressions before shorthand",
-      code: `<Component className="cover" src={src} alt={alt} sizes={sizes} fill />`,
+      code: fixtureCode`<Component className="cover" src={src} alt={alt} sizes={sizes} fill />`,
       filename: "Component.tsx",
     },
     {
@@ -102,7 +102,7 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "string then hyphenated string then expressions",
-      code: `<Component sample="sample" aria-label="Previous page" data-slot="pagination-prev" className={itemClass} isDisabled={isDisabled} onPress={handlePress} />`,
+      code: fixtureCode`<Component sample="sample" aria-label="Previous page" data-slot="pagination-prev" className={itemClass} isDisabled={isDisabled} onPress={handlePress} />`,
       filename: "Component.tsx",
     },
     {
@@ -134,7 +134,7 @@ ruleTester.run("jsx-sort-properties", rule, {
   invalid: [
     {
       name: "unsorted props with a comment are reported but not auto-fixed",
-      code: `<Component value={x} /* keep */ title="hello" />`,
+      code: fixtureCode`<Component value={x} /* keep */ title="hello" />`,
       filename: "Component.tsx",
       errors: [{ messageId: "unsortedProps" }],
     },
@@ -196,23 +196,23 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "shorthand before expression",
-      code: `<Component className="cover" fill sizes={sizes} />`,
+      code: fixtureCode`<Component className="cover" fill sizes={sizes} />`,
       filename: "Component.tsx",
-      output: `<Component className="cover" sizes={sizes} fill />`,
+      output: fixtureCode`<Component className="cover" sizes={sizes} fill />`,
       errors: [{ messageId: "unsortedProps" }],
     },
     {
       name: "expression before string",
-      code: `<Component value={someVar} title="hello" />`,
+      code: fixtureCode`<Component value={someVar} title="hello" />`,
       filename: "Component.tsx",
-      output: `<Component title="hello" value={someVar} />`,
+      output: fixtureCode`<Component title="hello" value={someVar} />`,
       errors: [{ messageId: "unsortedProps" }],
     },
     {
       name: "expression after shorthand",
-      code: `<Component className="cover" src={src} alt={alt} fill sizes={sizes} />`,
+      code: fixtureCode`<Component className="cover" src={src} alt={alt} fill sizes={sizes} />`,
       filename: "Component.tsx",
-      output: `<Component className="cover" src={src} alt={alt} sizes={sizes} fill />`,
+      output: fixtureCode`<Component className="cover" src={src} alt={alt} sizes={sizes} fill />`,
       errors: [{ messageId: "unsortedProps" }],
     },
     {
@@ -224,9 +224,9 @@ ruleTester.run("jsx-sort-properties", rule, {
     },
     {
       name: "hyphenated string after expression",
-      code: `<Component sample="sample" aria-label="Previous page" className={itemClass} data-slot="pagination-prev" />`,
+      code: fixtureCode`<Component sample="sample" aria-label="Previous page" className={itemClass} data-slot="pagination-prev" />`,
       filename: "Component.tsx",
-      output: `<Component sample="sample" aria-label="Previous page" data-slot="pagination-prev" className={itemClass} />`,
+      output: fixtureCode`<Component sample="sample" aria-label="Previous page" data-slot="pagination-prev" className={itemClass} />`,
       errors: [{ messageId: "unsortedProps" }],
     },
     {

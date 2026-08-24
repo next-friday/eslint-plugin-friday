@@ -1,5 +1,5 @@
 import rule from "../../src/rules/prefer-properties-with-children.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -79,7 +79,7 @@ ruleTester.run("prefer-properties-with-children", rule, {
     },
     {
       name: "PropsWithChildren param",
-      code: `
+      code: fixtureCode`
           const Component = (props: PropsWithChildren<{ label: string }>) => <div>{props.children}</div>;
         `,
       filename: "Component.tsx",
@@ -115,14 +115,14 @@ ruleTester.run("prefer-properties-with-children", rule, {
     },
     {
       name: "required children: ReactNode in inline type",
-      code: `
+      code: fixtureCode`
           const Component = ({ children, label }: { children: ReactNode; label: string }) => <div>{children}{label}</div>;
         `,
       filename: "Component.tsx",
     },
     {
       name: "required children: ReactNode in function props",
-      code: `
+      code: fixtureCode`
           function Layout(props: { children: ReactNode }) {
             return <div>{props.children}</div>;
           }
@@ -202,7 +202,7 @@ ruleTester.run("prefer-properties-with-children", rule, {
     },
     {
       name: "optional children: ReactNode in function props",
-      code: `
+      code: fixtureCode`
           function Layout(props: { children?: ReactNode }) {
             return <div>{props.children}</div>;
           }

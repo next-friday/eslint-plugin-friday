@@ -1,5 +1,5 @@
 import rule from "../../src/rules/prefer-named-parameter-types.js";
-import { createRuleTester } from "../setup.js";
+import { createRuleTester, fixtureCode } from "../setup.js";
 
 const ruleTester = createRuleTester(true);
 
@@ -72,7 +72,7 @@ ruleTester.run("prefer-named-parameter-types", rule, {
     },
     {
       name: "should defer to prefer-interface-over-inline-types for React components with non-destructured props",
-      code: `
+      code: fixtureCode`
         function Comp(props: { name: string }) {
           return <div>{props.name}</div>;
         }
@@ -80,7 +80,7 @@ ruleTester.run("prefer-named-parameter-types", rule, {
     },
     {
       name: "should defer for arrow React components with non-destructured props",
-      code: `
+      code: fixtureCode`
         const Comp = (props: { name: string }) => {
           return <div>{props.name}</div>;
         };
@@ -103,7 +103,7 @@ ruleTester.run("prefer-named-parameter-types", rule, {
   ],
   invalid: [
     {
-      code: `
+      code: fixtureCode`
         function Comp({ name }: { name: string }) {
           return <div>{name}</div>;
         }

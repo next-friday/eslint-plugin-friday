@@ -35,35 +35,39 @@ export default createRule({
 
     return {
       MemberExpression(node) {
-        if (
+        if (!(
           node.object.type === AST_NODE_TYPES.Identifier &&
           node.object.name === "React" &&
           node.property.type === AST_NODE_TYPES.Identifier &&
           isReactExport(node.property.name)
-        ) {
-          const typeName = node.property.name;
-
-          context.report({
-            node,
-            messageId: "preferDirectImport",
-            data: { typeName, importStatement: buildImportStatement(typeName) },
-          });
+        )) {
+          return;
         }
+
+        const typeName = node.property.name;
+
+        context.report({
+          node,
+          messageId: "preferDirectImport",
+          data: { typeName, importStatement: buildImportStatement(typeName) },
+        });
       },
       "TSTypeReference > TSQualifiedName": (node: TSESTree.TSQualifiedName) => {
-        if (
+        if (!(
           node.left.type === AST_NODE_TYPES.Identifier &&
           node.left.name === "React" &&
           isReactExport(node.right.name)
-        ) {
-          const typeName = node.right.name;
-
-          context.report({
-            node,
-            messageId: "preferDirectImport",
-            data: { typeName, importStatement: buildImportStatement(typeName) },
-          });
+        )) {
+          return;
         }
+
+        const typeName = node.right.name;
+
+        context.report({
+          node,
+          messageId: "preferDirectImport",
+          data: { typeName, importStatement: buildImportStatement(typeName) },
+        });
       },
     };
   },

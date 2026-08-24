@@ -16,7 +16,7 @@ export const getBaseName = (filename: string): string => {
   return lastDot <= 0 ? base : base.slice(0, lastDot);
 };
 
-export const endsWithAny = (
+export const hasAnySuffix = (
   filename: string,
   suffixes: readonly string[],
 ): boolean => suffixes.some((suffix) => filename.endsWith(suffix));

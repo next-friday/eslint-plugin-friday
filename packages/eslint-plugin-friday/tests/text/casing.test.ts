@@ -5,8 +5,8 @@ import {
   isHookName,
   isPascalCase,
   splitIdentifierWords,
-  startsWithAnyPrefixBoundary,
-  startsWithPrefixBoundary,
+  hasAnyPrefixBoundary,
+  hasPrefixBoundary,
   stripSurroundingUnderscores,
   toScreamingSnakeCase,
 } from "../../src/text/casing.js";
@@ -123,42 +123,42 @@ describe("stripSurroundingUnderscores", () => {
   });
 });
 
-describe("startsWithPrefixBoundary", () => {
+describe("hasPrefixBoundary", () => {
   it("is false when the name does not start with the prefix", () => {
-    expect(startsWithPrefixBoundary("compute", "render")).toBe(false);
+    expect(hasPrefixBoundary("compute", "render")).toBe(false);
   });
 
   it("is true when the name equals the prefix", () => {
-    expect(startsWithPrefixBoundary("render", "render")).toBe(true);
+    expect(hasPrefixBoundary("render", "render")).toBe(true);
   });
 
   it("is true when a digit follows the prefix", () => {
-    expect(startsWithPrefixBoundary("render2", "render")).toBe(true);
+    expect(hasPrefixBoundary("render2", "render")).toBe(true);
   });
 
   it("is true when an uppercase letter follows the prefix", () => {
-    expect(startsWithPrefixBoundary("renderItem", "render")).toBe(true);
+    expect(hasPrefixBoundary("renderItem", "render")).toBe(true);
   });
 
   it("is false when a lowercase letter follows the prefix", () => {
-    expect(startsWithPrefixBoundary("renderer", "render")).toBe(false);
+    expect(hasPrefixBoundary("renderer", "render")).toBe(false);
   });
 
   it("is false when a caseless character follows the prefix", () => {
-    expect(startsWithPrefixBoundary("render_", "render")).toBe(false);
+    expect(hasPrefixBoundary("render_", "render")).toBe(false);
   });
 });
 
-describe("startsWithAnyPrefixBoundary", () => {
+describe("hasAnyPrefixBoundary", () => {
   it("is true when one prefix matches at a boundary", () => {
-    expect(startsWithAnyPrefixBoundary("isActive", ["has", "is"])).toBe(true);
+    expect(hasAnyPrefixBoundary("isActive", ["has", "is"])).toBe(true);
   });
 
   it("is true when the name equals a prefix", () => {
-    expect(startsWithAnyPrefixBoundary("is", ["has", "is"])).toBe(true);
+    expect(hasAnyPrefixBoundary("is", ["has", "is"])).toBe(true);
   });
 
   it("is false when no prefix matches", () => {
-    expect(startsWithAnyPrefixBoundary("active", ["has", "is"])).toBe(false);
+    expect(hasAnyPrefixBoundary("active", ["has", "is"])).toBe(false);
   });
 });

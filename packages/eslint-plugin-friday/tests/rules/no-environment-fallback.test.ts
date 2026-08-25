@@ -6,102 +6,183 @@ const ruleTester = createRuleTester();
 ruleTester.run("no-environment-fallback", rule, {
   valid: [
     {
-      name: "should allow environment variable without fallback",
+      name: "allows reading an environment variable without fallback",
       code: `const apiKey = process.env.API_KEY;`,
     },
     {
-      name: "should allow direct environment variable access",
-      code: `const port = process.env.PORT;`,
+      name: "allows reading import.meta.env without fallback",
+      code: `const mode = import.meta.env.MODE;`,
     },
     {
-      name: "should allow environment variable in conditional",
-      code: `if (process.env.NODE_ENV) { console.log("dev mode"); }`,
+      name: "allows an environment variable as an if condition",
+      code: `if (process.env.NODE_ENV) { console.log("configured"); }`,
     },
     {
-      name: "should allow environment variable in object",
-      code: `const config = { apiKey: process.env.API_KEY };`,
+      name: "allows a ternary selecting between implementations",
+      code: `const logger = process.env.DEBUG ? debugLogger : productionLogger;`,
     },
     {
-      name: "should allow logical OR without process.env",
-      code: `const fallback = "default" || "value";`,
+      name: "allows a Vite dev-mode component switch",
+      code: `const component = import.meta.env.DEV ? DevComponent : ProdComponent;`,
     },
     {
-      name: "should allow nullish coalescing without process.env",
+      name: "allows a ternary statement calling either function",
+      code: `process.env.DEBUG ? enableDebug() : disableDebug();`,
+    },
+    {
+      name: "allows short-circuit feature flag invocation",
+      code: `process.env.FEATURE_FLAG && enableFeature();`,
+    },
+    {
+      name: "allows comparing an environment variable",
+      code: `process.env.VALUE === "enabled";`,
+    },
+    {
+      name: "allows destructuring without defaults",
+      code: `const { DATABASE_URL, API_URL } = process.env;`,
+    },
+    {
+      name: "allows renamed destructuring without defaults",
+      code: `const { DATABASE_URL: databaseUrl } = process.env;`,
+    },
+    {
+      name: "allows rest destructuring without defaults",
+      code: `const { ...rest } = process.env;`,
+    },
+    {
+      name: "allows nullish coalescing on a non-environment value",
       code: `const value = someVariable ?? "default";`,
     },
     {
-      name: "should allow ternary without process.env",
-      code: `const result = someCondition ? "yes" : "no";`,
-    },
-    {
-      name: "should allow accessing process.env directly",
-      code: `const envObj = process.env;`,
-    },
-    {
-      name: "should allow OR on a non-namespace member",
-      code: `const value = config.value || "default";`,
-    },
-    {
-      name: "should allow OR on a computed env-like member",
-      code: `const value = config["env"].MODE || "default";`,
-    },
-    {
-      name: "should allow OR on a non-env namespace",
+      name: "allows logical OR on a non-environment object",
       code: `const href = window.location.href || "/";`,
     },
     {
-      name: "should allow OR on a non-process env object",
-      code: `const mode = settings.env.MODE || "dev";`,
+      name: "allows logical AND assignment on an environment variable",
+      code: `process.env.DEBUG &&= "1";`,
+    },
+    {
+      name: "allows new.target which is not import.meta",
+      code: `class Example {
+        constructor() {
+          const base = new.target.base ?? Example;
+        }
+      }`,
+    },
+    {
+      name: "allows assigning the environment object itself",
+      code: `const envObject = process.env;`,
+    },
+    {
+      name: "allows a type-wrapped read without fallback",
+      code: `const apiKey = process.env.API_KEY as string;`,
     },
   ],
   invalid: [
     {
-      name: "should disallow logical OR operator with process.env",
+      name: "reports logical OR fallback",
       code: `const apiKey = process.env.API_KEY || "default-key";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 16 }],
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow nullish coalescing operator with process.env",
+      name: "reports nullish coalescing fallback",
       code: `const dbUrl = process.env.DATABASE_URL ?? "localhost";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 15 }],
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow ternary operator with process.env",
-      code: `const port = process.env.PORT ? "8080" : "3000";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 14 }],
+      name: "reports computed property access fallback",
+      code: `const dbUrl = process.env["DATABASE_URL"] ?? "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow string literal fallback with OR",
-      code: `const token = process.env.AUTH_TOKEN || "abc123";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 15 }],
+      name: "reports import.meta.env fallback",
+      code: `const mode = import.meta.env.SOME_OPTION ?? "development";`,
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow fallback in object property",
+      name: "reports a fallback inside an object property",
       code: `const config = {
-        apiUrl: process.env.API_URL ?? "https://api.example.com",
-      };`,
-      errors: [{ messageId: "noEnvFallback", line: 2, column: 17 }],
+  apiUrl: process.env.API_URL ?? "https://api.example.com",
+};`,
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow ternary with different fallback values",
-      code: `const region = process.env.AWS_REGION ? "us-east-1" : "us-west-2";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 16 }],
-    },
-    {
-      name: "should disallow fallback in return statement",
+      name: "reports a fallback in a return statement",
       code: `function getConfig() {
-        return process.env.CONFIG_PATH || "/default/path";
-      }`,
-      errors: [{ messageId: "noEnvFallback", line: 2, column: 16 }],
+  return process.env.CONFIG_PATH || "/default/path";
+}`,
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow empty string as fallback",
+      name: "reports an empty string nullish fallback",
       code: `const secret = process.env.SECRET_KEY ?? "";`,
-      errors: [{ messageId: "noEnvFallback", line: 1, column: 16 }],
+      errors: [{ messageId: "noEnvFallback" }],
     },
     {
-      name: "should disallow OR fallback with import.meta.env",
-      code: `const mode = import.meta.env.MODE || "dev";`,
+      name: "reports a fallback through an as expression",
+      code: `const databaseUrl =
+  (process.env.DATABASE_URL as string | undefined) ?? "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a fallback through a satisfies expression",
+      code: `const databaseUrl =
+  (process.env.DATABASE_URL satisfies string | undefined) ?? "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a fallback through a non-null expression",
+      code: `const dbUrl = process.env.DATABASE_URL! ?? "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a fallback through a type assertion",
+      code: `const dbUrl = <string>process.env.DATABASE_URL || "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a fallback through nested wrappers",
+      code: `const databaseUrl =
+  (process.env.DATABASE_URL! as string | undefined) ?? "localhost";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports logical OR assignment fallback",
+      code: `process.env.API_URL ||= "http://localhost:3000";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports logical nullish assignment fallback",
+      code: `process.env.API_URL ??= "http://localhost:3000";`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a destructuring default",
+      code: `const { DATABASE_URL = "localhost" } = process.env;`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a renamed destructuring default",
+      code: `const { DATABASE_URL: databaseUrl = "localhost" } = process.env;`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports each destructuring default once",
+      code: `const {
+  API_URL = "https://example.com",
+  PORT = "3000",
+} = process.env;`,
+      errors: [{ messageId: "noEnvFallback" }, { messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a destructuring default from import.meta.env",
+      code: `const { DEV = "true" } = import.meta.env;`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports a destructuring default through a wrapped source",
+      code: `const { DATABASE_URL = "localhost" } =
+  process.env as Record<string, string>;`,
       errors: [{ messageId: "noEnvFallback" }],
     },
   ],

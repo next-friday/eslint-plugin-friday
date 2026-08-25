@@ -64,7 +64,7 @@ jobs:
             echo "Branch is linked to open issue #$n"
           elif [[ "$HEAD" =~ (^|/)pr-([0-9]+)(-|$) ]]; then
             n="${BASH_REMATCH[2]}"
-            if ! grep -qiE "(replace|replaces|replaced) #${n}([^0-9]|$)" <<<"$PR_BODY"; then
+            if ! grep -qiE "(^|[^[:alnum:]_])(replace|replaces|replaced) #${n}([^0-9]|$)" <<<"$PR_BODY"; then
               echo "::error::Replacement branch '$HEAD' must declare 'Replaces #$n' in the PR body." >&2
               exit 1
             fi

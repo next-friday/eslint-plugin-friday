@@ -15,8 +15,8 @@ if [[ "$title" =~ \#[0-9]+ ]]; then
   exit 1
 fi
 
-if ! grep -qiE '(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved) #[0-9]+' <<<"$body" \
-  && ! grep -qiE '(replace|replaces|replaced) #[0-9]+' <<<"$body"; then
+if ! grep -qiE '(^|[^[:alnum:]_])(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved) #[0-9]+' <<<"$body" \
+  && ! grep -qiE '(^|[^[:alnum:]_])(replace|replaces|replaced) #[0-9]+' <<<"$body"; then
   echo "::error::PR body must close an issue or explicitly replace a PR ('Closes #N' or 'Replaces #N')." >&2
   exit 1
 fi

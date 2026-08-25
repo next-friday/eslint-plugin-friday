@@ -1,5 +1,11 @@
 # eslint-plugin-friday
 
+## 2.0.0
+
+### Major Changes
+
+- [#31](https://github.com/next-friday/eslint-plugin-friday/pull/31) [`bd6a7e5`](https://github.com/next-friday/eslint-plugin-friday/commit/bd6a7e595fd057e3e61a695204c4b44eec8628ce) Thanks [@joetakara](https://github.com/joetakara)! - Rename the ESLint plugin namespace from `next-friday` to `friday`. Flat configs register the plugin under the `friday` key, generated rule IDs become `friday/<rule>`, and preset names become `friday/<preset>` such as `friday/base/recommended`. Rewrite rule overrides targeting the old IDs: `"next-friday/no-direct-date": "off"` becomes `"friday/no-direct-date": "off"`. The npm package name stays `eslint-plugin-friday` and the GitHub organization stays `next-friday`. See the migration table in the README.
+
 ## 1.1.0
 
 ### Minor Changes

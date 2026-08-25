@@ -1,5 +1,7 @@
 # no-inline-return-properties
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Require `return` object properties to use shorthand notation by extracting non-shorthand values to `const` variables first.

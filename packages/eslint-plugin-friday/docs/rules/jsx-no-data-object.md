@@ -1,5 +1,7 @@
 # jsx-no-data-object
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow top-level nested object literals in component files named `*.tsx` or `*.jsx`.

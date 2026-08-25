@@ -1,5 +1,7 @@
 # properties-suffix
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a `Props` suffix for interfaces and object-literal type aliases in component files named `*.tsx` or `*.jsx`.

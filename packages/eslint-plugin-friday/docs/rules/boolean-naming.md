@@ -1,5 +1,7 @@
 # boolean-naming
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a boolean prefix such as `is`, `has`, `should`, `can`, `did`, `will`, `was`, `are`, `does`, or `had` on boolean variables and parameters.

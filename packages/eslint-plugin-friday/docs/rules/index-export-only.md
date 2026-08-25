@@ -1,5 +1,7 @@
 # index-export-only
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Require index files to contain only imports, re-exports, and type declarations.

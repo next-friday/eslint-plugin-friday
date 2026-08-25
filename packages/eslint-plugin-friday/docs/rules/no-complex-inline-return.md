@@ -1,5 +1,7 @@
 # no-complex-inline-return
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow complex inline expressions in `return` statements; prefer extracting them to a `const` first.

@@ -1,5 +1,7 @@
 # prefer-interface-over-inline-types
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a named interface for React component props instead of an inline object type annotation.

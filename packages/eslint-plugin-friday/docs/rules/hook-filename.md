@@ -1,5 +1,7 @@
 # hook-filename
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce that files exporting custom hooks are named `*.hook.ts` or `*.hooks.ts`.

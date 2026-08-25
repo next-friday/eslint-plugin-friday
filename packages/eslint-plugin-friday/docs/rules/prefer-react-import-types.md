@@ -1,5 +1,7 @@
 # prefer-react-import-types
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce importing React types and utilities directly from `react` instead of accessing them through the `React.` namespace.

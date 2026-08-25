@@ -1,5 +1,7 @@
 # test-filename
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce that files containing test code are named `*.test.ts` or `*.test.tsx`.

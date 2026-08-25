@@ -1,5 +1,7 @@
 # render-naming
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a `render` prefix for variables that hold or return JSX inside React components.

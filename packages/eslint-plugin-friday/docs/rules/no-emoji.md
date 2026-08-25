@@ -1,5 +1,7 @@
 # no-emoji
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow emoji characters in source code.

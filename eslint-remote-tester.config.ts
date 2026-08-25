@@ -6,7 +6,7 @@ import {
 import { parser } from "typescript-eslint";
 
 const allRules = Object.fromEntries(
-  Object.keys(friday.rules).map((name) => [`next-friday/${name}`, "error"]),
+  Object.keys(friday.rules).map((name) => [`friday/${name}`, "error"]),
 );
 
 const config = {
@@ -23,7 +23,7 @@ const config = {
         parser,
         parserOptions: { ecmaFeatures: { jsx: true } },
       },
-      plugins: { "next-friday": friday },
+      plugins: { friday },
       rules: allRules,
     },
   ],

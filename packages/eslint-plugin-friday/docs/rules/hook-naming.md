@@ -1,5 +1,7 @@
 # hook-naming
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a `use` prefix for functions exported from custom hook files named `*.hook.ts` or `*.hooks.ts`.

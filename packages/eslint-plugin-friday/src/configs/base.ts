@@ -1,3 +1,4 @@
+import { PLUGIN_NAMESPACE } from "../constants/plugin-namespace.js";
 import { withSeverity } from "./build-rules.js";
 import type { FlatConfig, PluginShape, Severity } from "./types.js";
 
@@ -38,6 +39,6 @@ export const buildBase = (
   plugin: PluginShape,
   severity: Severity,
 ): FlatConfig => ({
-  plugins: { "next-friday": plugin },
+  plugins: { [PLUGIN_NAMESPACE]: plugin },
   rules: withSeverity(BASE_RULES, severity),
 });

@@ -1,5 +1,7 @@
 # prefer-properties-with-children
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Prefer `PropsWithChildren<T>` over manually declaring `children?: ReactNode` in component props.

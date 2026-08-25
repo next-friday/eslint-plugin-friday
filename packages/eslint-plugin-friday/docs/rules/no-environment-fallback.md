@@ -1,5 +1,7 @@
 # no-environment-fallback
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow fallback values for environment variables, since silent defaults can be dangerous in production.

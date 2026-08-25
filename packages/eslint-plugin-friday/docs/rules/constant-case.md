@@ -1,5 +1,7 @@
 # constant-case
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce `SCREAMING_SNAKE_CASE` for global magic-number, magic-text, bigint, and RegExp constants.

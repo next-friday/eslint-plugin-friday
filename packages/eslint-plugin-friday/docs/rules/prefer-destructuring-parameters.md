@@ -1,5 +1,7 @@
 # prefer-destructuring-parameters
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce destructuring for functions that declare at least `minParams` positional parameters, three by default.
@@ -34,7 +36,7 @@ The minimum number of parameters at which destructuring is required. Defaults to
 
 ```ts
 // eslint.config.mjs
-"next-friday/prefer-destructuring-parameters": ["error", { minParams: 2 }];
+"friday/prefer-destructuring-parameters": ["error", { minParams: 2 }];
 ```
 
 ## When not to use

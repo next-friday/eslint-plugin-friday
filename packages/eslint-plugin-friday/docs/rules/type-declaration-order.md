@@ -1,5 +1,7 @@
 # type-declaration-order
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce that referenced types and interfaces are declared after the type that uses them.

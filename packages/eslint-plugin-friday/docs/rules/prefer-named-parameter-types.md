@@ -1,5 +1,7 @@
 # prefer-named-parameter-types
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce a named interface or type for object parameter types instead of inline object type annotations.

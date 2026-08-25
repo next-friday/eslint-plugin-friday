@@ -1,5 +1,7 @@
 # no-logic-in-parameters
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow logic or conditions in function call arguments; extract them to a `const` first.
@@ -41,7 +43,7 @@ Use it to exempt utilities where an inline condition is idiomatic, such as class
 
 ```json
 {
-  "next-friday/no-logic-in-parameters": [
+  "friday/no-logic-in-parameters": [
     "error",
     { "allow": ["clsx", "cn", "cva", "t", "expect"] }
   ]

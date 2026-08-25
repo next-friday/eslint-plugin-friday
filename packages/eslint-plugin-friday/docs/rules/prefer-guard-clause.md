@@ -1,5 +1,7 @@
 # prefer-guard-clause
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce the guard clause pattern instead of nested `if` statements.

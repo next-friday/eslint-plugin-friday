@@ -1,5 +1,7 @@
 # no-nested-interface-declaration
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow inline object type literals nested inside interface or type properties.

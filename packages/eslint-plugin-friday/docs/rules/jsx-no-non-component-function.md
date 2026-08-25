@@ -1,5 +1,7 @@
 # jsx-no-non-component-function
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow non-component functions declared at the top level of component files named `*.tsx` or `*.jsx`.

@@ -23,6 +23,7 @@ jobs:
     permissions:
       contents: read
       issues: read
+      pull-requests: read
     steps:
       - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c
         with:
@@ -39,7 +40,7 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: echo "$PR_TITLE" | pnpm exec commitlint
-      - name: Title carries no issue ref and body closes one
+      - name: Title carries no issue ref and body references work
         if: ${{ env.VALIDATE == 'true' }}
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
@@ -50,19 +51,32 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
           REPO: ${{ github.repository }}
         run: |
-          if [[ ! "$HEAD" =~ ^[0-9]+- ]]; then
-            echo "::error::Head branch must be created from an issue (gh issue develop <n>); got '$HEAD'." >&2
+          if [[ "$HEAD" =~ ^([0-9]+)- ]]; then
+            n="${BASH_REMATCH[1]}"
+            state=$(gh issue view "$n" --repo "$REPO" --json state --jq .state)
+            if [ "$state" != "OPEN" ]; then
+              echo "::error::Issue #$n referenced by branch '$HEAD' is not open (state: $state)." >&2
+              exit 1
+            fi
+            echo "Branch is linked to open issue #$n"
+          elif [[ "$HEAD" =~ (^|/)pr-([0-9]+)(-|$) ]]; then
+            n="${BASH_REMATCH[2]}"
+            if ! grep -qiE "(replace|replaces|replaced) #${n}([^0-9]|$)" <<<"$PR_BODY"; then
+              echo "::error::Replacement branch '$HEAD' must declare 'Replaces #$n' in the PR body." >&2
+              exit 1
+            fi
+            if ! gh pr view "$n" --repo "$REPO" --json number --jq .number >/dev/null; then
+              echo "::error::Replacement branch '$HEAD' references PR #$n, but that PR does not exist." >&2
+              exit 1
+            fi
+            echo "Replacement branch is linked to PR #$n"
+          else
+            echo "::error::Head branch must link to work: '<issue>-...' or '.../pr-<PR>-...'; got '$HEAD'." >&2
             exit 1
           fi
-          n="${HEAD%%-*}"
-          state=$(gh issue view "$n" --repo "$REPO" --json state --jq .state)
-          if [ "$state" != "OPEN" ]; then
-            echo "::error::Issue #$n referenced by branch '$HEAD' is not open (state: $state)." >&2
-            exit 1
-          fi
-          echo "Branch is linked to open issue #$n"
       - name: Behavior-changing types require a changeset
         if: ${{ env.VALIDATE == 'true' }}
         env:

@@ -5983,6 +5983,8 @@ snapshots:
     dependencies:
       reserved-identifiers: 1.2.0
 
+  ignore@5.3.2: {}
+
   ignore@7.0.6: {}
 
   import-fresh@3.3.1:
@@ -7374,6 +7376,8 @@ snapshots:
   walk-up-path@4.0.0: {}
 
   watskeburt@6.0.0: {}
+
+  web-worker@1.5.0: {}
 
   webidl-conversions@3.0.1: {}
 

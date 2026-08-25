@@ -1,5 +1,7 @@
 # no-lazy-identifiers
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow lazy, meaningless identifiers such as repeated characters or keyboard-row runs that hurt readability.
@@ -38,7 +40,7 @@ This rule accepts one options object with a single property:
 
 ```json
 {
-  "next-friday/no-lazy-identifiers": ["error", { "allow": ["aaa", "qwerty"] }]
+  "friday/no-lazy-identifiers": ["error", { "allow": ["aaa", "qwerty"] }]
 }
 ```
 

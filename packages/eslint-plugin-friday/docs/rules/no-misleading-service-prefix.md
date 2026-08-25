@@ -1,5 +1,7 @@
 # no-misleading-service-prefix
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow misleading function-name prefixes in `*.service.ts` files.

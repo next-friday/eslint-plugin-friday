@@ -1,5 +1,7 @@
 # jsx-no-data-array
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow top-level arrays of object literals in component files named `*.tsx` or `*.jsx`.

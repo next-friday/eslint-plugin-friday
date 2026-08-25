@@ -1,5 +1,7 @@
 # jsx-spread-properties-last
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Enforce that JSX spread attributes appear after all other props.

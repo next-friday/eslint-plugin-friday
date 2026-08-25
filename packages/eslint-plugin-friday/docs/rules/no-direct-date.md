@@ -1,5 +1,7 @@
 # no-direct-date
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow direct usage of the `Date` constructor and `Date` static methods to enforce centralized date utilities.
@@ -37,7 +39,7 @@ The name of the date utility to recommend in the report message. Defaults to a g
 
 ```ts
 // eslint.config.mjs
-"next-friday/no-direct-date": ["error", { utilityName: "date-fns" }];
+"friday/no-direct-date": ["error", { utilityName: "date-fns" }];
 ```
 
 ## When not to use

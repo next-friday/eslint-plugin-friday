@@ -1,5 +1,7 @@
 # no-misleading-constant-case
 
+💼 This rule is enabled in the ✅ `base/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow `SCREAMING_SNAKE_CASE` for non-constant or non-static values.

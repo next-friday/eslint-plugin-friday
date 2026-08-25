@@ -1,5 +1,7 @@
 # jsx-require-suspense
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Require lazy-loaded components to be rendered inside a `<Suspense>` boundary.

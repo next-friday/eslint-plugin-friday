@@ -1,5 +1,7 @@
 # no-ghost-wrapper
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow bare `<div>` and `<span>` elements that carry no meaningful attributes, known as Divitis or ghost wrappers.

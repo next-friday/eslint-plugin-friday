@@ -1,5 +1,7 @@
 # jsx-no-sub-interface
 
+💼 This rule is enabled in the ⚛️ `react/recommended` config.
+
 <!-- end auto-generated rule header -->
 
 Disallow sub-interfaces and helper types in component files; keep only the main component props.

@@ -102,28 +102,49 @@ export const isFunctionInitializer = (
   node?.type === AST_NODE_TYPES.ArrowFunctionExpression ||
   node?.type === AST_NODE_TYPES.FunctionExpression;
 
-export const isEnvironmentAccess = (node: TSESTree.Node): boolean => {
-  if (node.type !== AST_NODE_TYPES.MemberExpression) {
-    return false;
-  }
+const TRANSPARENT_EXPRESSION_TYPES: ReadonlySet<AST_NODE_TYPES> = new Set([
+  AST_NODE_TYPES.TSAsExpression,
+  AST_NODE_TYPES.TSSatisfiesExpression,
+  AST_NODE_TYPES.TSNonNullExpression,
+  AST_NODE_TYPES.TSTypeAssertion,
+]);
 
-  const { object } = node;
+const unwrapTransparentExpression = (node: TSESTree.Node): TSESTree.Node =>
+  TRANSPARENT_EXPRESSION_TYPES.has(node.type)
+    ? unwrapTransparentExpression((node as TSESTree.TSAsExpression).expression)
+    : node;
 
-  if (object.type !== AST_NODE_TYPES.MemberExpression) {
-    return false;
-  }
+export const isEnvironmentObject = (node: TSESTree.Node): boolean => {
+  const expression = unwrapTransparentExpression(node);
 
   if (
-    object.property.type !== AST_NODE_TYPES.Identifier ||
-    object.property.name !== "env"
+    expression.type !== AST_NODE_TYPES.MemberExpression ||
+    expression.computed ||
+    expression.property.type !== AST_NODE_TYPES.Identifier ||
+    expression.property.name !== "env"
   ) {
     return false;
   }
 
+  const { object } = expression;
+
+  if (object.type === AST_NODE_TYPES.Identifier) {
+    return object.name === "process";
+  }
+
   return (
-    (object.object.type === AST_NODE_TYPES.Identifier &&
-      object.object.name === "process") ||
-    object.object.type === AST_NODE_TYPES.MetaProperty
+    object.type === AST_NODE_TYPES.MetaProperty &&
+    object.meta.name === "import" &&
+    object.property.name === "meta"
+  );
+};
+
+export const isEnvironmentAccess = (node: TSESTree.Node): boolean => {
+  const expression = unwrapTransparentExpression(node);
+
+  return (
+    expression.type === AST_NODE_TYPES.MemberExpression &&
+    isEnvironmentObject(expression.object)
   );
 };
 

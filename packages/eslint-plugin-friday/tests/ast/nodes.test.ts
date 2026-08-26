@@ -12,6 +12,7 @@ import {
   isGlobalScope,
   isJsxProducingExpression,
   isEnvironmentAccess,
+  isEnvironmentObject,
   isProgramLevelNode,
   hasInlineObjectLiteralTypeNode,
   unwrapTSAsExpression,
@@ -25,6 +26,24 @@ const node = <NodeType>(
 const NULL = JSON.parse("null") as null;
 
 const UNDEFINED = ([] as undefined[]).at(0);
+
+const identifier = (name: string): TSESTree.Identifier =>
+  node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, { name });
+
+const metaProperty = (
+  metaName: string,
+  propertyName: string,
+): TSESTree.MetaProperty =>
+  node<TSESTree.MetaProperty>(AST_NODE_TYPES.MetaProperty, {
+    meta: identifier(metaName),
+    property: identifier(propertyName),
+  });
+
+const environmentObjectOf = (object: TSESTree.Node): TSESTree.Node =>
+  node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
+    object,
+    property: identifier("env"),
+  });
 
 const booleanKeyword = node<TSESTree.TSBooleanKeyword>(
   AST_NODE_TYPES.TSBooleanKeyword,
@@ -344,14 +363,8 @@ describe("isEnvironmentAccess", () => {
   });
 
   it("returns true for import.meta.env access", () => {
-    const importMetaEnvironmentObject = node<TSESTree.Node>(
-      AST_NODE_TYPES.MemberExpression,
-      {
-        object: node<TSESTree.Node>(AST_NODE_TYPES.MetaProperty),
-        property: node<TSESTree.Identifier>(AST_NODE_TYPES.Identifier, {
-          name: "env",
-        }),
-      },
+    const importMetaEnvironmentObject = environmentObjectOf(
+      metaProperty("import", "meta"),
     );
     expect(
       isEnvironmentAccess(
@@ -360,6 +373,56 @@ describe("isEnvironmentAccess", () => {
         }),
       ),
     ).toBe(true);
+  });
+
+  it("returns false for new.target access", () => {
+    const newTargetEnvironmentObject = environmentObjectOf(
+      metaProperty("new", "target"),
+    );
+    expect(
+      isEnvironmentAccess(
+        node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
+          object: newTargetEnvironmentObject,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it.each([
+    ["as", AST_NODE_TYPES.TSAsExpression],
+    ["satisfies", AST_NODE_TYPES.TSSatisfiesExpression],
+    ["non-null", AST_NODE_TYPES.TSNonNullExpression],
+    ["type assertion", AST_NODE_TYPES.TSTypeAssertion],
+  ] as const)(
+    "%s wrapper does not hide environment access",
+    (_, wrapperType) => {
+      const processEnvironmentObject = environmentObjectOf(
+        identifier("process"),
+      );
+      const wrappedAccess = node<TSESTree.Node>(wrapperType, {
+        expression: node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
+          object: processEnvironmentObject,
+          property: identifier("API_KEY"),
+        }),
+      });
+      expect(isEnvironmentAccess(wrappedAccess)).toBe(true);
+    },
+  );
+
+  it("unwraps nested wrappers to the environment access", () => {
+    const innerAccess = node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
+      object: environmentObjectOf(identifier("process")),
+      property: identifier("API_KEY"),
+    });
+    const nonNullAccess = node<TSESTree.Node>(
+      AST_NODE_TYPES.TSNonNullExpression,
+      { expression: innerAccess },
+    );
+    const doublyWrappedAccess = node<TSESTree.Node>(
+      AST_NODE_TYPES.TSAsExpression,
+      { expression: nonNullAccess },
+    );
+    expect(isEnvironmentAccess(doublyWrappedAccess)).toBe(true);
   });
 
   it("returns false when the inner object is not the process identifier", () => {
@@ -440,6 +503,94 @@ describe("isEnvironmentAccess", () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("isEnvironmentObject", () => {
+  it("returns true for the process environment object", () => {
+    const processEnvironmentObject = environmentObjectOf(identifier("process"));
+    expect(isEnvironmentObject(processEnvironmentObject)).toBe(true);
+  });
+
+  it("returns true for the import.meta.env object", () => {
+    const importMetaEnvironmentObject = environmentObjectOf(
+      metaProperty("import", "meta"),
+    );
+    expect(isEnvironmentObject(importMetaEnvironmentObject)).toBe(true);
+  });
+
+  it("returns false for a non-member expression", () => {
+    const plainIdentifier = node<TSESTree.Node>(AST_NODE_TYPES.Identifier);
+    expect(isEnvironmentObject(plainIdentifier)).toBe(false);
+  });
+
+  it("returns false through a wrapper around a non-environment value", () => {
+    const wrappedSettings = node<TSESTree.Node>(AST_NODE_TYPES.TSAsExpression, {
+      expression: identifier("settings"),
+    });
+    expect(isEnvironmentObject(wrappedSettings)).toBe(false);
+  });
+
+  it("returns false when the property is computed", () => {
+    const computedEnvironmentObject = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: identifier("process"),
+        property: node<TSESTree.Literal>(AST_NODE_TYPES.Literal, {
+          value: "env",
+        }),
+      },
+    );
+    expect(isEnvironmentObject(computedEnvironmentObject)).toBe(false);
+  });
+
+  it("returns false when the property is another namespace", () => {
+    const processArgv = node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression, {
+      object: identifier("process"),
+      property: identifier("argv"),
+    });
+    expect(isEnvironmentObject(processArgv)).toBe(false);
+  });
+
+  it("returns false for a meta property other than import.meta", () => {
+    const newTargetEnvironment = environmentObjectOf(
+      metaProperty("new", "target"),
+    );
+    expect(isEnvironmentObject(newTargetEnvironment)).toBe(false);
+  });
+
+  it("returns false for a computed environment property", () => {
+    const computedEnvironment = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: identifier("process"),
+        property: identifier("env"),
+        computed: true,
+      },
+    );
+    expect(isEnvironmentObject(computedEnvironment)).toBe(false);
+  });
+
+  it("returns false when the meta property fields do not match", () => {
+    const mismatchedMetaEnvironment = environmentObjectOf(
+      metaProperty("import", "target"),
+    );
+    expect(isEnvironmentObject(mismatchedMetaEnvironment)).toBe(false);
+  });
+
+  it("returns false when the object is a member expression", () => {
+    const nestedMemberEnvironment = environmentObjectOf(
+      node<TSESTree.Node>(AST_NODE_TYPES.MemberExpression),
+    );
+    expect(isEnvironmentObject(nestedMemberEnvironment)).toBe(false);
+  });
+
+  it("returns true through a wrapper around the environment object", () => {
+    const wrappedProcessEnvironment = node<TSESTree.Node>(
+      AST_NODE_TYPES.TSSatisfiesExpression,
+      { expression: environmentObjectOf(identifier("process")) },
+    );
+    expect(isEnvironmentObject(wrappedProcessEnvironment)).toBe(true);
   });
 });
 

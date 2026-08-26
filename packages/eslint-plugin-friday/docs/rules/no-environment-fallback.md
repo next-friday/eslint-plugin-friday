@@ -8,11 +8,11 @@ Disallow fallback/default values for environment variables, since silent default
 
 ## Rationale
 
-Reading an environment variable that was never set does not fail. The read evaluates to `undefined`, so a misconfigured deployment surfaces its problem later and unpredictably. A fallback substitutes another value whenever the variable is absent, nullish, or falsy through `||`, `??`, `||=`, `??=`, or a destructuring default. That substitution hides the misconfiguration instead of surfacing it.
+Reading an environment variable that was never set does not fail. The read evaluates to `undefined`, so a misconfigured deployment surfaces its problem later and unpredictably. `||` and `||=` substitute for falsy values. `??` and `??=` substitute for nullish values. Destructuring defaults substitute only when a property is `undefined`. These substitutions hide the misconfiguration instead of surfacing it.
 
 ## What this rule does
 
-It reports direct fallback constructs whose candidate value comes from `process.env.*` or `import.meta.env.*`:
+It reports direct fallback constructs whose candidate value comes from `process.env` or `import.meta.env`, including their property reads:
 
 ❌ Incorrect
 
@@ -71,7 +71,7 @@ The last pattern is the documented Vite way to gate development tooling.
 
 ## Limitations
 
-- A same-value ternary such as `process.env.VALUE ? process.env.VALUE : "default"` selects a substitute behind a condition and is not reported. Prefer `??` so the intent stays explicit and detectable.
+- A same-value ternary such as `process.env.VALUE ? process.env.VALUE : "default"` selects a substitute behind a condition and is not reported. Replace it with `??` only when nullish-only substitution is intended. Otherwise remove the fallback entirely, since `??` keeps an empty-string value where the ternary treats one as missing.
 - Aliases such as assigning `const env = process.env` and later reading `env.X ?? "fallback"` are not tracked.
 
 ## Options

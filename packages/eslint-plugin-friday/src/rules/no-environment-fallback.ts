@@ -1,9 +1,19 @@
-import { AST_NODE_TYPES } from "@typescript-eslint/utils";
+import { AST_NODE_TYPES, type TSESTree } from "@typescript-eslint/utils";
 
 import { isEnvironmentAccess, isEnvironmentObject } from "../ast/nodes.js";
 import { ENVIRONMENT_FALLBACK_ASSIGNMENT_OPERATORS } from "../constants/environment-fallback-assignment-operators.js";
 import { ENVIRONMENT_FALLBACK_OPERATORS } from "../constants/environment-fallback-operators.js";
 import { createRule } from "../core/create-rule.js";
+
+const destructuringDefaults = (
+  pattern: TSESTree.ObjectPattern,
+): TSESTree.AssignmentPattern[] =>
+  pattern.properties.flatMap((property) =>
+    property.type === AST_NODE_TYPES.Property &&
+    property.value.type === AST_NODE_TYPES.AssignmentPattern
+      ? [property.value]
+      : [],
+  );
 
 export default createRule({
   name: "no-environment-fallback",
@@ -28,6 +38,19 @@ export default createRule({
           isEnvironmentAccess(node.left)
         ) {
           context.report({ node, messageId: "noEnvFallback" });
+          return;
+        }
+
+        if (
+          node.operator !== "=" ||
+          !isEnvironmentObject(node.right) ||
+          node.left.type !== AST_NODE_TYPES.ObjectPattern
+        ) {
+          return;
+        }
+
+        for (const fallback of destructuringDefaults(node.left)) {
+          context.report({ node: fallback, messageId: "noEnvFallback" });
         }
       },
       LogicalExpression(node) {
@@ -47,16 +70,8 @@ export default createRule({
           return;
         }
 
-        for (const property of node.id.properties) {
-          if (
-            property.type === AST_NODE_TYPES.Property &&
-            property.value.type === AST_NODE_TYPES.AssignmentPattern
-          ) {
-            context.report({
-              node: property.value,
-              messageId: "noEnvFallback",
-            });
-          }
+        for (const fallback of destructuringDefaults(node.id)) {
+          context.report({ node: fallback, messageId: "noEnvFallback" });
         }
       },
     };

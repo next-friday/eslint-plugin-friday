@@ -119,6 +119,7 @@ export const isEnvironmentObject = (node: TSESTree.Node): boolean => {
 
   if (
     expression.type !== AST_NODE_TYPES.MemberExpression ||
+    expression.computed ||
     expression.property.type !== AST_NODE_TYPES.Identifier ||
     expression.property.name !== "env"
   ) {

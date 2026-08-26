@@ -58,6 +58,10 @@ ruleTester.run("no-environment-fallback", rule, {
       code: `const href = window.location.href || "/";`,
     },
     {
+      name: "allows bracketed access with a variable named env",
+      code: `const value = process[env].API_KEY ?? "default";`,
+    },
+    {
       name: "allows logical AND assignment on an environment variable",
       code: `process.env.DEBUG &&= "1";`,
     },
@@ -159,6 +163,11 @@ ruleTester.run("no-environment-fallback", rule, {
     {
       name: "reports a destructuring default",
       code: `const { DATABASE_URL = "localhost" } = process.env;`,
+      errors: [{ messageId: "noEnvFallback" }],
+    },
+    {
+      name: "reports an assignment destructuring default",
+      code: `({ API_URL = "https://example.com" } = process.env);`,
       errors: [{ messageId: "noEnvFallback" }],
     },
     {

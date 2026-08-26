@@ -559,6 +559,18 @@ describe("isEnvironmentObject", () => {
     expect(isEnvironmentObject(newTargetEnvironment)).toBe(false);
   });
 
+  it("returns false for a computed environment property", () => {
+    const computedEnvironment = node<TSESTree.Node>(
+      AST_NODE_TYPES.MemberExpression,
+      {
+        object: identifier("process"),
+        property: identifier("env"),
+        computed: true,
+      },
+    );
+    expect(isEnvironmentObject(computedEnvironment)).toBe(false);
+  });
+
   it("returns false when the meta property fields do not match", () => {
     const mismatchedMetaEnvironment = environmentObjectOf(
       metaProperty("import", "target"),

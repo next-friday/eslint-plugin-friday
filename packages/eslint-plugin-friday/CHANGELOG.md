@@ -1,5 +1,11 @@
 # eslint-plugin-friday
 
+## 2.0.1
+
+### Patch Changes
+
+- [#34](https://github.com/next-friday/eslint-plugin-friday/pull/34) [`8494513`](https://github.com/next-friday/eslint-plugin-friday/commit/8494513760270ed8347b1b53c6b8abfa7379e932) Thanks [@joetakara](https://github.com/joetakara)! - Sharpen `no-environment-fallback` to report only direct environment fallbacks. Conditional expressions that merely test an environment variable are no longer reported, and `new.target.*` is no longer mistaken for `import.meta.env`. Newly detected fallbacks: destructuring defaults from `process.env` or `import.meta.env`, logical assignments `||=` and `??=`, and TypeScript-wrapped operands such as `as`, `satisfies`, non-null, and angle-bracket assertions. The diagnostic message now describes the enforced policy without claiming startup validation.
+
 ## 2.0.0
 
 ### Major Changes

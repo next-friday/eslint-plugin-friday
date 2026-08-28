@@ -31,6 +31,7 @@ import noInlineNestedObject from "./no-inline-nested-object.js";
 import noInlineReturnProperties from "./no-inline-return-properties.js";
 import noLazyIdentifiers from "./no-lazy-identifiers.js";
 import noLogicInParameters from "./no-logic-in-parameters.js";
+import noMagicNumbers from "./no-magic-numbers.js";
 import noMisleadingConstantCase from "./no-misleading-constant-case.js";
 import noNestedInterfaceDeclaration from "./no-nested-interface-declaration.js";
 import preferDestructuringParameters from "./prefer-destructuring-parameters.js";
@@ -78,6 +79,7 @@ export const rules = {
   "no-inline-return-properties": noInlineReturnProperties,
   "no-lazy-identifiers": noLazyIdentifiers,
   "no-logic-in-parameters": noLogicInParameters,
+  "no-magic-numbers": noMagicNumbers,
   "no-misleading-constant-case": noMisleadingConstantCase,
   "no-nested-interface-declaration": noNestedInterfaceDeclaration,
   "prefer-destructuring-parameters": preferDestructuringParameters,

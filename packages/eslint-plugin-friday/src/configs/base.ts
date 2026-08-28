@@ -22,6 +22,7 @@ const BASE_RULES = [
   "no-inline-return-properties",
   "no-lazy-identifiers",
   "no-logic-in-parameters",
+  "no-magic-numbers",
   "no-misleading-constant-case",
   "no-nested-interface-declaration",
   "prefer-destructuring-parameters",

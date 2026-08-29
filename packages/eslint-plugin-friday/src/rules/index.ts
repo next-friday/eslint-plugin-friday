@@ -28,6 +28,8 @@ import noEmoji from "./no-emoji.js";
 import noEnvironmentFallback from "./no-environment-fallback.js";
 import noGhostWrapper from "./no-ghost-wrapper.js";
 import noInlineNestedObject from "./no-inline-nested-object.js";
+import noJsFiles from "./no-js-files.js";
+import noLintSuppression from "./no-lint-suppression.js";
 import noInlineReturnProperties from "./no-inline-return-properties.js";
 import noLazyIdentifiers from "./no-lazy-identifiers.js";
 import noLogicInParameters from "./no-logic-in-parameters.js";
@@ -76,6 +78,8 @@ export const rules = {
   "no-environment-fallback": noEnvironmentFallback,
   "no-ghost-wrapper": noGhostWrapper,
   "no-inline-nested-object": noInlineNestedObject,
+  "no-js-files": noJsFiles,
+  "no-lint-suppression": noLintSuppression,
   "no-inline-return-properties": noInlineReturnProperties,
   "no-lazy-identifiers": noLazyIdentifiers,
   "no-logic-in-parameters": noLogicInParameters,

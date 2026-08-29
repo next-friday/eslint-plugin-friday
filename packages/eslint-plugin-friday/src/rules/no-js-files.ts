@@ -39,16 +39,12 @@ export default createRule<[NoJsFilesOptions], NoJsFilesMessageIds>({
     const { allowList } = options;
     const filename = context.filename;
 
-    if (!filename) {
-      return {};
-    }
-
     const isJsFile = filename.endsWith(".js") || filename.endsWith(".jsx");
     if (!isJsFile) {
       return {};
     }
 
-    const basename = filename.split("/").pop() ?? filename;
+    const basename = filename.split("/").pop()!;
     const isAllowed = allowList.some((pattern: string) => {
       if (pattern.includes("*")) {
         const regex = new RegExp(`^${pattern.replaceAll("*", ".*")}$`);

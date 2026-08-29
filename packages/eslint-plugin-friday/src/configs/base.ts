@@ -20,6 +20,8 @@ const BASE_RULES = [
   "no-environment-fallback",
   "no-inline-nested-object",
   "no-inline-return-properties",
+  "no-js-files",
+  "no-lint-suppression",
   "no-lazy-identifiers",
   "no-logic-in-parameters",
   "no-magic-numbers",

@@ -111,6 +111,19 @@ const visibleTextBoundarySource = [
   "",
 ].join("\n");
 
+const nonBreakingSpaceBoundarySource = [
+  COMPONENT_OPEN,
+  "  return (",
+  "    <div>",
+  "      <section>",
+  "        One",
+  "      </section>\u{A0}<aside>Two</aside>",
+  "    </div>",
+  "  );",
+  "}",
+  "",
+].join("\n");
+
 ruleTester.run("jsx-newline-between-elements", jsxNewlineBetweenElements, {
   valid: [
     {
@@ -122,6 +135,11 @@ ruleTester.run("jsx-newline-between-elements", jsxNewlineBetweenElements, {
       code: visibleTextBoundarySource,
       filename,
       name: "keeps visible text as a sibling boundary",
+    },
+    {
+      code: nonBreakingSpaceBoundarySource,
+      filename,
+      name: "preserves a non-breaking-space text boundary",
     },
   ],
   invalid: [

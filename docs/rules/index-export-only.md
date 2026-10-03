@@ -31,6 +31,6 @@ export type {ButtonProps} from "./button";
 
 The rule applies when the filename without its final extension is exactly `index` (for example, `index.ts` or `index.tsx`). It does not apply to names such as `index.test.ts`.
 
-Allowed top-level statements are imports, TypeScript `import =` declarations, directives, interfaces, type aliases, `export *`, and named export lists, including local export lists and re-exports. A named export may also declare an interface or type alias.
+Allowed top-level statements are imports, TypeScript external-module `import = require(...)` declarations, directives, interfaces, type aliases, `export *`, and named export lists, including local export lists and re-exports. A named export may also declare an interface or type alias.
 
 A default export is allowed only when its declaration is an identifier, such as `export default Component`. Inline default function or class declarations and other default expressions, such as literals, are reported. Runtime declarations and other top-level implementation statements are reported.

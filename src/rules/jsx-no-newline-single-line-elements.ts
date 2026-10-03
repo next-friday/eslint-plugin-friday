@@ -1,6 +1,6 @@
 import type {Rule} from "eslint";
 
-import {createJsxParentListener} from "../utils/jsx-children";
+import {createJsxParentListener, isIgnorableJsxText} from "../utils/jsx-children";
 import type {JsxChild} from "../utils/jsx-children";
 import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
 
@@ -32,9 +32,7 @@ function canCollapseGap(current: JsxChild, next: JsxChild): boolean {
  * @param children JSX children belonging to one element or fragment.
  */
 function checkSiblings(context: Rule.RuleContext, children: readonly JsxChild[]): void {
-  const elements = children.filter(
-    child => child.type !== "JSXText" || (child.value ?? "").trim() !== "",
-  );
+  const elements = children.filter(child => !isIgnorableJsxText(child));
 
   let index = 1;
 

@@ -65,6 +65,14 @@ const REPORTED_CASES = [
     name: "runtime constant",
   },
   {
+    code: "import Alias = Namespace.Member;\n",
+    name: "TypeScript entity-name import alias",
+  },
+  {
+    code: "export import Alias = Namespace.Member;\n",
+    name: "exported TypeScript entity-name import alias",
+  },
+  {
     code: "export function value() {}\n",
     name: "runtime function",
   },

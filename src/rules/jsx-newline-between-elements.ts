@@ -1,6 +1,6 @@
 import type {Rule} from "eslint";
 
-import {createJsxParentListener} from "../utils/jsx-children";
+import {createJsxParentListener, isIgnorableJsxText} from "../utils/jsx-children";
 import type {JsxChild} from "../utils/jsx-children";
 import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
 
@@ -39,9 +39,7 @@ function canRequireGap(current: JsxChild, next: JsxChild): boolean {
  * @param children JSX children belonging to one element or fragment.
  */
 function checkSiblings(context: Rule.RuleContext, children: readonly JsxChild[]): void {
-  const siblings = children.filter(
-    child => child.type !== "JSXText" || (child.value ?? "").trim() !== "",
-  );
+  const siblings = children.filter(child => !isIgnorableJsxText(child));
   let index = 0;
 
   while (index < siblings.length - 1) {

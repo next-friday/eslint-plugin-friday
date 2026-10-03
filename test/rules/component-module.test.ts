@@ -60,6 +60,10 @@ const ALLOW_CASES: BehaviorCase[] = [
     source: "export default function Component() { return <div />; }",
   },
   {
+    name: "anonymous default-exported arrow component",
+    source: "export default () => <div />;",
+  },
+  {
     name: "bare export for a local component",
     source: ["function Component() { return <div />; }", "export {Component};"].join("\n"),
   },
@@ -118,6 +122,10 @@ const ALLOW_CASES: BehaviorCase[] = [
 ];
 
 const REJECT_CASES: BehaviorCase[] = [
+  {
+    name: "default export of a component identifier",
+    source: "export default Component;",
+  },
   {
     name: "top-level component variants",
     source: [

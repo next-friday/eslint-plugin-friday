@@ -84,6 +84,19 @@ const expressionBetweenSiblings = [
   "",
 ].join("\n");
 
+const nonBreakingSpaceBoundary = [
+  COMPONENT_OPEN,
+  "  return (",
+  "    <div>",
+  "      <span>One</span>",
+  "      \u{A0}",
+  "      <span>Two</span>",
+  "    </div>",
+  "  );",
+  "}",
+  "",
+].join("\n");
+
 ruleTester.run("jsx-no-newline-single-line-elements", jsxNoNewlineSingleLineElements, {
   valid: [
     {
@@ -95,6 +108,11 @@ ruleTester.run("jsx-no-newline-single-line-elements", jsxNoNewlineSingleLineElem
       code: expressionBetweenSiblings,
       filename,
       name: "keeps blank lines around a non-element sibling unchanged",
+    },
+    {
+      code: nonBreakingSpaceBoundary,
+      filename,
+      name: "preserves a non-breaking-space text boundary",
     },
   ],
   invalid: [

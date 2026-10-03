@@ -12,6 +12,7 @@ type ProgramNode = Rule.Node & {
 type ProgramStatement = {
   declaration?: {type: string} | null;
   directive?: string;
+  moduleReference?: {type: string};
   type: string;
 };
 
@@ -57,7 +58,7 @@ function isAllowedStatement(node: ProgramStatement): boolean {
     }
 
     case "TSImportEqualsDeclaration": {
-      return true;
+      return node.moduleReference?.type === "TSExternalModuleReference";
     }
 
     case "TSInterfaceDeclaration": {

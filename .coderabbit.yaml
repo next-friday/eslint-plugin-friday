@@ -1,0 +1,45 @@
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "{src,test}/**"
+    - "{package.json,pnpm-workspace.yaml,tsconfig.json,tsdown.config.ts,vitest.config.ts,eslint.config.ts,.eslint-doc-generatorrc.ts,.nvmrc}"
+    - "**/pnpm-lock.yaml"
+    - ".changeset/**"
+    - ".github/{workflows,actions,scripts,ISSUE_TEMPLATE}/**"
+    - ".husky/**"
+    - "!**/*.md"
+    - "!.changeset/README.md"
+    - "!.agents/**"
+    - "!.claude/**"
+    - "!AGENTS.md"
+    - "!CLAUDE.md"
+  path_instructions:
+    - path: "**/*.{ts,tsx,js,mjs,cjs}"
+      instructions: |
+        Suppression Review: Require root-cause fixes where feasible. Allow only narrow, documented exceptions for @ts-ignore, @ts-expect-error, as any, skipped tests, or eslint-disable directives.
+    - path: "**/test/**"
+      instructions: |
+        Behavioral Verification: Require tests to exercise observable ESLint rule behavior or public package contracts. Flag tests that assert implementation shape alone.
+    - path: "src/rules/**"
+      instructions: |
+        Stable Rule Contracts: Preserve existing friday/* rule IDs and observable diagnostics. Treat changes to either as breaking only when the PR explicitly declares that intent.
+    - path: "src/**"
+      instructions: |
+        Source Boundaries: Keep rule implementations under src/rules/, private shared helpers under src/utils/, and the supported plugin entrypoint in src/index.ts.
+    - path: "package.json"
+      instructions: |
+        Package Boundary: Keep runtime dependencies to shipped rule needs; place repository tooling in devDependencies. Validate package exports with Publint and AreTheTypesWrong.
+
+knowledge_base:
+  code_guidelines:
+    enabled: false

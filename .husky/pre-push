@@ -1,0 +1,73 @@
+#!/usr/bin/env sh
+set -eu
+
+remote_name=$1
+zero=$(git hash-object --stdin < /dev/null | tr '0-9a-f' '0')
+has_push=0
+has_heavy=0
+head_oid=$(git rev-parse HEAD)
+
+if ! command -v gitleaks > /dev/null 2>&1; then
+  printf '%s\n' "pre-push verification requires gitleaks." >&2
+  exit 1
+fi
+
+while IFS=' ' read -r local_ref local_oid remote_ref remote_oid || [ -n "${local_ref:-}" ]; do
+  : "$local_ref" "$remote_ref"
+
+  if [ "$local_oid" = "$zero" ]; then
+    continue
+  fi
+
+  pushed_oid=$(git rev-parse "$local_oid^{commit}")
+  if [ "$pushed_oid" != "$head_oid" ]; then
+    printf '%s\n' \
+      "pre-push verification requires every pushed ref to point to the checked-out commit." \
+      "HEAD: $head_oid" \
+      "Pushed commit: $pushed_oid" >&2
+    exit 1
+  fi
+
+  has_push=1
+
+  if [ "$remote_oid" = "$zero" ]; then
+    log_opts="$local_oid --not --remotes=$remote_name"
+  elif git cat-file -e "$remote_oid^{commit}" 2>/dev/null; then
+    log_opts="$remote_oid..$local_oid"
+  else
+    log_opts="$local_oid --not --remotes=$remote_name"
+  fi
+
+  gitleaks git --redact --log-opts="$log_opts" .
+
+  if git log -m --format= --name-only $log_opts -- \
+    . \
+    ':(exclude,glob)**/*.md' \
+    ':(exclude,glob)docs/**' \
+    ':(exclude)LICENSE' \
+    ':(exclude,glob).changeset/**' \
+    ':(exclude,glob).github/ISSUE_TEMPLATE/**' \
+    ':(exclude).github/pull_request_template.md' \
+    ':(exclude).github/CODEOWNERS' \
+    ':(exclude).github/dependabot.yml' \
+    ':(exclude).github/labeler.yml' \
+    ':(exclude,glob).vscode/**' \
+    ':(exclude,glob).claude/**' \
+    ':(exclude,glob).agents/**' \
+    ':(exclude)CLAUDE.md' \
+    ':(exclude)AGENTS.md' \
+    ':(exclude,glob)**/*.png' \
+    ':(exclude,glob)**/*.svg' \
+    ':(exclude,glob)**/*.jpg' \
+    ':(exclude).gitignore' \
+    ':(exclude).gitattributes' \
+    | grep -q .; then
+    has_heavy=1
+  fi
+done
+
+if [ "$has_push" -eq 0 ] || [ "$has_heavy" -eq 0 ]; then
+  exit 0
+fi
+
+pnpm verify

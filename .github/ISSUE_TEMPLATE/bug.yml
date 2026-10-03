@@ -1,0 +1,70 @@
+name: Bug report
+description: Report incorrect diagnostics, crashes, compatibility problems, or package usage issues.
+labels: ["bug", "needs triage"]
+assignees:
+  - joetakara
+  - next-friday-engineer
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reproduce the issue with a supported Node.js and ESLint version.
+        Remove credentials, secrets, personal or customer data, and proprietary source code before submitting.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you submit
+      description: Confirm these items before submitting the report.
+      options:
+        - label: I searched existing issues and didn't find a matching report.
+          required: true
+        - label: I can reproduce this issue with the latest version of `@next-friday/eslint-plugin-friday`.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: "@next-friday/eslint-plugin-friday version"
+      placeholder: 0.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: List Node.js, ESLint, operating system, package manager, parser, and TypeScript versions when relevant.
+      placeholder: |
+        Node.js: 24.20.0
+        ESLint: 10.11.0
+        OS: Ubuntu 24.04 / macOS
+        Package manager: pnpm 12.6.0
+        TypeScript: 6.0.3
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Link to a minimal public reproduction or provide sanitized code and configuration that reproduce the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the behavior you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Describe what happened, including diagnostics, crashes, or incorrect autofixes.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sensitive information
+      options:
+        - label: I removed credentials, secrets, personal or customer data, and proprietary code from this report.
+          required: true

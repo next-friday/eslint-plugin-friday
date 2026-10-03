@@ -1,0 +1,84 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Bangkok
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    groups:
+      eslint-ecosystem:
+        applies-to: version-updates
+        patterns:
+          - eslint
+          - "@eslint/*"
+          - "@eslint-react/*"
+          - eslint-config-prettier
+          - eslint-doc-generator
+          - eslint-plugin-eslint-plugin
+          - typescript-eslint
+        update-types:
+          - minor
+          - patch
+      test-build-tooling:
+        applies-to: version-updates
+        patterns:
+          - "@types/*"
+          - "@vitest/*"
+          - tsdown
+          - typescript
+          - vite
+          - vitest
+        update-types:
+          - minor
+          - patch
+      repo-tooling:
+        applies-to: version-updates
+        patterns:
+          - "@arethetypeswrong/*"
+          - "@changesets/*"
+          - "@commitlint/*"
+          - husky
+          - knip
+          - lint-staged
+          - pkg-pr-new
+          - prettier
+          - publint
+          - sort-package-json
+        update-types:
+          - minor
+          - patch
+      root-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: Asia/Bangkok
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    groups:
+      github-actions:
+        patterns:
+          - "*"

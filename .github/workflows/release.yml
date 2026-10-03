@@ -43,8 +43,8 @@ jobs:
     if: ${{ needs.select-mode.outputs.mode == 'version' }}
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # Needed by Changesets to create and update the version branch.
+      pull-requests: write # Needed by Changesets to create and update the version pull request.
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -97,8 +97,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: Release
     permissions:
-      contents: write
-      id-token: write
+      contents: write # Needed by Changesets to create the GitHub release.
+      id-token: write # Needed for npm trusted publishing.
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

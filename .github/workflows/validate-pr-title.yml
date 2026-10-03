@@ -9,7 +9,11 @@ on:
       - synchronize
 
 permissions:
-  pull-requests: read
+  pull-requests: read # Needed to read the pull request title for semantic validation.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate-title:

@@ -8,6 +8,8 @@ updates:
       day: monday
       time: "09:00"
       timezone: Asia/Bangkok
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     commit-message:
       prefix: chore
@@ -70,6 +72,8 @@ updates:
       day: monday
       time: "09:30"
       timezone: Asia/Bangkok
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: chore
       prefix-development: chore

@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: read # Needed by paths-filter to inspect pull request changes.
     outputs:
       heavy: ${{ steps.filter.outputs.heavy }}
       ci_policy: ${{ steps.filter.outputs.ci_policy }}
@@ -54,7 +54,7 @@ jobs:
           fi
 
           full_verification=false
-          if [[ "$EVENT_NAME" == "pull_request" && "$release_pr" != "true" && ( "$HEAVY" == "true" || "$CI_POLICY" == "true" ) ]]; then
+          if [[ "$EVENT_NAME" == "push" || ( "$EVENT_NAME" == "pull_request" && "$release_pr" != "true" && ( "$HEAVY" == "true" || "$CI_POLICY" == "true" ) ) ]]; then
             full_verification=true
           fi
 
@@ -225,7 +225,7 @@ jobs:
         run: pnpm build
       - name: Verify packed package in a clean npm consumer
         shell: bash
-        run: |
+        run: | # zizmor: ignore[adhoc-packages] isolated consumer install
           consumer_dir="$(mktemp -d)"
           pnpm pack --pack-destination "$consumer_dir"
           cd "$consumer_dir"
@@ -292,7 +292,7 @@ jobs:
         shell: bash
         env:
           ESLINT_VERSION: ${{ matrix.eslint }}
-        run: >-
+        run: >- # zizmor: ignore[adhoc-packages] compatibility matrix
           pnpm add --save-dev --save-exact
           "eslint@$ESLINT_VERSION"
           --lockfile=false

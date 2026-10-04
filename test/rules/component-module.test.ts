@@ -136,6 +136,14 @@ const ALLOW_CASES: BehaviorCase[] = [
     ].join("\n"),
   },
   {
+    name: "React context with a type-only import specifier",
+    source: [
+      'import {type ReactNode, createContext} from "react";',
+      "const ComponentContext = createContext(null);",
+      SIMPLE_COMPONENT,
+    ].join("\n"),
+  },
+  {
     name: "React namespace context beside a component",
     source: [
       'import * as React from "react";',

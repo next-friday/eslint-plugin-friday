@@ -10,7 +10,10 @@ const ALLOWED_MODULE_STATEMENT_TYPES = new Set([
   "ExportAllDeclaration",
   "ImportDeclaration",
   "TSInterfaceDeclaration",
+  "TSTypeAliasDeclaration",
 ]);
+
+const COMPONENT_METADATA_PROPERTIES = new Set(["displayName"]);
 
 const EXPORT_STATEMENT_TYPES = new Set(["ExportDefaultDeclaration", "ExportNamedDeclaration"]);
 
@@ -19,12 +22,40 @@ type IdentifierLike = {
   type?: string;
 };
 
+type ExpressionLike = {
+  callee?: ExpressionLike;
+  computed?: boolean;
+  left?: ExpressionLike;
+  name?: string;
+  object?: ExpressionLike;
+  operator?: string;
+  property?: ExpressionLike;
+  type: string;
+};
+
+type ImportSpecifierLike = {
+  imported?: IdentifierLike;
+  importKind?: string;
+  local?: IdentifierLike;
+  type?: string;
+};
+
 type ProgramStatement = {
   declaration?: unknown;
-  declarations?: readonly {id?: IdentifierLike}[];
+  declarations?: readonly {id?: IdentifierLike; init?: ExpressionLike | null}[];
   directive?: string;
+  expression?: ExpressionLike;
   id?: IdentifierLike | null;
+  importKind?: string;
+  name?: string;
+  source?: {value?: unknown};
+  specifiers?: readonly ImportSpecifierLike[];
   type: string;
+};
+
+type ReactBindings = {
+  createContextNames: ReadonlySet<string>;
+  namespaceNames: ReadonlySet<string>;
 };
 
 type RuleOptions = {
@@ -63,6 +94,160 @@ function isAllowedComponentDeclaration(
 }
 
 /**
+ * Collect local React bindings needed to recognize component-support declarations.
+ * @param statements Top-level program statements.
+ * @returns Local createContext and React namespace/default import names.
+ */
+function getReactBindings(statements: readonly ProgramStatement[]): ReactBindings {
+  const createContextNames = new Set<string>();
+  const namespaceNames = new Set<string>();
+
+  for (const statement of statements) {
+    if (
+      statement.type !== "ImportDeclaration" ||
+      statement.importKind === "type" ||
+      statement.source?.value !== "react"
+    ) {
+      continue;
+    }
+
+    const specifiers = statement.specifiers ?? [];
+
+    for (const specifier of specifiers) {
+      if (specifier.importKind === "type") {
+        continue;
+      }
+
+      if (
+        specifier.type === "ImportSpecifier" &&
+        specifier.imported?.name === "createContext" &&
+        specifier.local?.name !== undefined
+      ) {
+        createContextNames.add(specifier.local.name);
+      }
+
+      if (
+        (specifier.type === "ImportDefaultSpecifier" ||
+          specifier.type === "ImportNamespaceSpecifier") &&
+        specifier.local?.name !== undefined
+      ) {
+        namespaceNames.add(specifier.local.name);
+      }
+    }
+  }
+
+  return {createContextNames, namespaceNames};
+}
+
+/**
+ * Collect local names for detected React function components.
+ * @param components React function components detected by the React detector.
+ * @returns Component names that can own component metadata.
+ */
+function getComponentNames(
+  components: readonly FunctionComponentSemanticNode[],
+): ReadonlySet<string> {
+  const names = new Set<string>();
+
+  for (const component of components) {
+    const node = component.node as unknown as ProgramStatement;
+
+    if (node.id?.name !== undefined) {
+      names.add(node.id.name);
+    }
+
+    const declarator = component.initPath?.[1] as {id?: IdentifierLike} | undefined;
+
+    if (declarator?.id?.name !== undefined) {
+      names.add(declarator.id.name);
+    }
+  }
+
+  return names;
+}
+
+/**
+ * Check whether an expression calls React.createContext through a verified React import.
+ * @param expression Candidate initializer.
+ * @param reactBindings Local React bindings.
+ * @returns Whether the expression is a React createContext call.
+ */
+function isReactCreateContextCall(
+  expression: ExpressionLike | null | undefined,
+  reactBindings: ReactBindings,
+): boolean {
+  if (expression?.type !== "CallExpression") {
+    return false;
+  }
+
+  const {callee} = expression;
+
+  return callee?.type === "Identifier" &&
+    callee.name !== undefined &&
+    reactBindings.createContextNames.has(callee.name)
+    ? true
+    : callee?.type === "MemberExpression" &&
+        callee.computed !== true &&
+        callee.object?.type === "Identifier" &&
+        callee.object.name !== undefined &&
+        reactBindings.namespaceNames.has(callee.object.name) &&
+        callee.property?.type === "Identifier" &&
+        callee.property.name === "createContext";
+}
+
+/**
+ * Check whether a variable declaration contains only React structural declarations.
+ * @param node Declaration node to evaluate.
+ * @param reactBindings Local React bindings.
+ * @returns Whether every declared value is a React context.
+ */
+function isAllowedReactStructuralDeclaration(
+  node: ProgramStatement,
+  reactBindings: ReactBindings,
+): boolean {
+  return (
+    node.type === "VariableDeclaration" &&
+    node.declarations !== undefined &&
+    node.declarations.length > 0 &&
+    node.declarations.every(declaration =>
+      isReactCreateContextCall(declaration.init, reactBindings),
+    )
+  );
+}
+
+/**
+ * Check whether a top-level statement assigns supported metadata to a detected component.
+ * @param node Top-level program statement.
+ * @param componentNames Detected local React component names.
+ * @returns Whether the statement is supported component metadata.
+ */
+function isAllowedComponentMetadataStatement(
+  node: ProgramStatement,
+  componentNames: ReadonlySet<string>,
+): boolean {
+  if (
+    node.type !== "ExpressionStatement" ||
+    node.expression?.type !== "AssignmentExpression" ||
+    node.expression.operator !== "="
+  ) {
+    return false;
+  }
+
+  const {left} = node.expression;
+
+  return (
+    left?.type === "MemberExpression" &&
+    left.computed !== true &&
+    left.object?.type === "Identifier" &&
+    left.object.name !== undefined &&
+    componentNames.has(left.object.name) &&
+    left.property?.type === "Identifier" &&
+    left.property.name !== undefined &&
+    COMPONENT_METADATA_PROPERTIES.has(left.property.name)
+  );
+}
+
+/**
  * Check whether a declaration name is explicitly allowed by framework policy.
  * @param node Declaration node to evaluate.
  * @param allowedDeclarations Framework-owned declaration names.
@@ -98,12 +283,16 @@ function isAllowedDeclarationName(
  * Check whether an export contains only allowed declarations.
  * @param node Export statement to evaluate.
  * @param components React function components detected by the React detector.
+ * @param componentNames Detected local React component names.
+ * @param reactBindings Local React bindings.
  * @param allowedDeclarations Framework-owned declaration names.
  * @returns Whether the export belongs in the component module.
  */
 function isAllowedExportStatement(
   node: ProgramStatement,
   components: readonly FunctionComponentSemanticNode[],
+  componentNames: ReadonlySet<string>,
+  reactBindings: ReactBindings,
   allowedDeclarations: ReadonlySet<string>,
 ): boolean {
   if (!EXPORT_STATEMENT_TYPES.has(node.type)) {
@@ -118,7 +307,12 @@ function isAllowedExportStatement(
 
   return (
     declaration.type === "TSInterfaceDeclaration" ||
+    declaration.type === "TSTypeAliasDeclaration" ||
+    (declaration.type === "Identifier" &&
+      declaration.name !== undefined &&
+      componentNames.has(declaration.name)) ||
     isAllowedComponentDeclaration(declaration, components) ||
+    isAllowedReactStructuralDeclaration(declaration, reactBindings) ||
     isAllowedDeclarationName(declaration, allowedDeclarations)
   );
 }
@@ -126,7 +320,7 @@ function isAllowedExportStatement(
 /**
  * Check whether the statement is permitted module syntax.
  * @param node Top-level program statement.
- * @returns Whether the statement is an import, re-export, interface, or directive.
+ * @returns Whether the statement is an import, re-export, type declaration, or directive.
  */
 function isAllowedModuleSyntax(node: ProgramStatement): boolean {
   return (
@@ -139,18 +333,24 @@ function isAllowedModuleSyntax(node: ProgramStatement): boolean {
  * Check whether a top-level statement is permitted in a React component module.
  * @param node Top-level program statement.
  * @param components React function components detected by the React detector.
+ * @param componentNames Detected local React component names.
+ * @param reactBindings Local React bindings.
  * @param allowedDeclarations Framework-owned declaration names.
  * @returns Whether the statement belongs in a JSX or TSX component module.
  */
 function isAllowedStatement(
   node: ProgramStatement,
   components: readonly FunctionComponentSemanticNode[],
+  componentNames: ReadonlySet<string>,
+  reactBindings: ReactBindings,
   allowedDeclarations: ReadonlySet<string>,
 ): boolean {
   return (
     isAllowedModuleSyntax(node) ||
     isAllowedComponentDeclaration(node, components) ||
-    isAllowedExportStatement(node, components, allowedDeclarations)
+    isAllowedReactStructuralDeclaration(node, reactBindings) ||
+    isAllowedComponentMetadataStatement(node, componentNames) ||
+    isAllowedExportStatement(node, components, componentNames, reactBindings, allowedDeclarations)
   );
 }
 
@@ -160,17 +360,23 @@ export const componentModule: Rule.RuleModule = {
     const allowedDeclarations = new Set(options?.allowDeclarations);
 
     return createFunctionComponentVisitor(context, (node, components) => {
-      let index = 0;
+      const statements = node.body as unknown as ProgramStatement[];
+      const componentNames = getComponentNames(components);
+      const reactBindings = getReactBindings(statements);
 
-      while (index < node.body.length) {
-        const statement = node.body[index] as (typeof node.body)[number];
-
-        index += 1;
-
-        if (!isAllowedStatement(statement, components, allowedDeclarations)) {
+      for (const statement of statements) {
+        if (
+          !isAllowedStatement(
+            statement,
+            components,
+            componentNames,
+            reactBindings,
+            allowedDeclarations,
+          )
+        ) {
           context.report({
             messageId: MESSAGE_ID,
-            node: statement,
+            node: statement as Rule.Node,
           });
         }
       }
@@ -181,7 +387,7 @@ export const componentModule: Rule.RuleModule = {
     type: "suggestion",
     docs: {
       description:
-        "require React component modules to contain only imports, directives, export lists or re-exports, TypeScript interfaces, React function components, and explicitly allowed exported declarations",
+        "require React component modules to contain only component definitions, component-support declarations, imports, exports, directives, and explicitly allowed framework declarations",
       url: getRuleDocumentationUrl("component-module"),
     },
     defaultOptions: [{allowDeclarations: []}],

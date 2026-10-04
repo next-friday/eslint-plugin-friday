@@ -119,6 +119,42 @@ const ALLOW_CASES: BehaviorCase[] = [
     name: "exported props interface beside a component",
     source: ["export interface Properties { label: string }", PROPERTIES_COMPONENT].join("\n"),
   },
+  {
+    name: "props type alias beside a component",
+    source: ["type Properties = {label: string};", PROPERTIES_COMPONENT].join("\n"),
+  },
+  {
+    name: "exported props type alias beside a component",
+    source: ["export type Properties = {label: string};", PROPERTIES_COMPONENT].join("\n"),
+  },
+  {
+    name: "React context beside a component",
+    source: [
+      'import {createContext} from "react";',
+      "const ComponentContext = createContext(null);",
+      SIMPLE_COMPONENT,
+    ].join("\n"),
+  },
+  {
+    name: "React namespace context beside a component",
+    source: [
+      'import * as React from "react";',
+      "const ComponentContext = React.createContext(null);",
+      SIMPLE_COMPONENT,
+    ].join("\n"),
+  },
+  {
+    name: "component displayName metadata",
+    source: [
+      "function Component() { return <div />; }",
+      'Component.displayName = "Component";',
+      "export {Component};",
+    ].join("\n"),
+  },
+  {
+    name: "default export for a local component identifier",
+    source: ["function Component() { return <div />; }", "export default Component;"].join("\n"),
+  },
 ];
 
 const REJECT_CASES: BehaviorCase[] = [
@@ -147,10 +183,6 @@ const REJECT_CASES: BehaviorCase[] = [
       'const label = "Save";',
       "export function Component() { return <button>{label}</button>; }",
     ].join("\n"),
-  },
-  {
-    name: "top-level type alias",
-    source: ["type Properties = {label: string};", PROPERTIES_COMPONENT].join("\n"),
   },
   {
     name: "top-level enum",
@@ -202,10 +234,6 @@ const REJECT_CASES: BehaviorCase[] = [
     source: ["const config = {size: 'default'};", SIMPLE_COMPONENT].join("\n"),
   },
   {
-    name: "exported type declaration",
-    source: ["export type Properties = {label: string};", PROPERTIES_COMPONENT].join("\n"),
-  },
-  {
     name: "top-level namespace",
     source: ["namespace Internal { export const value = 1; }", SIMPLE_COMPONENT].join("\n"),
   },
@@ -214,6 +242,22 @@ const REJECT_CASES: BehaviorCase[] = [
     source: [
       "const pattern = /component/u;",
       "export function Component() { return <div>{pattern.source}</div>; }",
+    ].join("\n"),
+  },
+  {
+    name: "non-React createContext declaration",
+    source: [
+      'import {createContext} from "./context";',
+      "const ComponentContext = createContext(null);",
+      SIMPLE_COMPONENT,
+    ].join("\n"),
+  },
+  {
+    name: "displayName assignment on a non-component",
+    source: [
+      'import {helper} from "./helper";',
+      'helper.displayName = "Helper";',
+      SIMPLE_COMPONENT,
     ].join("\n"),
   },
 ];

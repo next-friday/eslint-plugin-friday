@@ -94,7 +94,7 @@ export {Button, ButtonContext};
 
 This rule is intended for JSX and TSX component modules. The rule itself does not inspect or restrict file extensions. The rule uses `@eslint-react/core` to identify React function components. Detected forms include function declarations, function expressions, arrow functions, and arrows passed to React's `memo` or `forwardRef`. Detection also considers function context and implementation signals such as JSX returns or Hook calls; other edge cases follow `@eslint-react/core`'s classification.
 
-React context declarations are recognized only when `createContext` resolves from a direct, default, or namespace import from `react`. A same-named function imported from another module does not bypass the rule. Component metadata support is intentionally narrow and currently permits `displayName` assignments only when the assignment target is a detected local component.
+React context declarations are recognized only when `createContext` resolves from a direct, default, or namespace import from `react`. A same-named function imported from another module does not bypass the rule. Component metadata support is intentionally narrow and currently permits `displayName` assignments only when the assignment target is a detected module-scope component and the assigned value is a string literal.
 
 Runtime constants, helper functions, enums, classes, namespaces, and side-effect statements remain reported by default. A variable declaration is allowed as a component or React-context declaration only when every declared variable satisfies the corresponding contract.
 

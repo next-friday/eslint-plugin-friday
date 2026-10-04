@@ -30,7 +30,9 @@ type ExpressionLike = {
   object?: ExpressionLike;
   operator?: string;
   property?: ExpressionLike;
+  right?: ExpressionLike;
   type: string;
+  value?: unknown;
 };
 
 type ImportSpecifierLike = {
@@ -111,7 +113,7 @@ function getReactBindings(statements: readonly ProgramStatement[]): ReactBinding
       continue;
     }
 
-    const specifiers = statement.specifiers ?? [];
+    const specifiers = statement.specifiers as readonly ImportSpecifierLike[];
 
     for (const specifier of specifiers) {
       if (specifier.importKind === "type") {
@@ -140,27 +142,54 @@ function getReactBindings(statements: readonly ProgramStatement[]): ReactBinding
 }
 
 /**
- * Collect local names for detected React function components.
+ * Check whether a declaration is owned directly by the program body or an export wrapper.
+ * @param declaration Declaration node to locate.
+ * @param statements Top-level program statements.
+ * @returns Whether the declaration belongs to module scope.
+ */
+function isTopLevelDeclaration(
+  declaration: unknown,
+  statements: readonly ProgramStatement[],
+): boolean {
+  return statements.some(
+    statement =>
+      Object.is(statement, declaration) ||
+      (EXPORT_STATEMENT_TYPES.has(statement.type) && Object.is(statement.declaration, declaration)),
+  );
+}
+
+/**
+ * Collect module-scope bindings for detected React function components.
  * @param components React function components detected by the React detector.
- * @returns Component names that can own component metadata.
+ * @param statements Top-level program statements.
+ * @returns Component bindings that can own component metadata or identifier exports.
  */
 function getComponentNames(
   components: readonly FunctionComponentSemanticNode[],
+  statements: readonly ProgramStatement[],
 ): ReadonlySet<string> {
   const names = new Set<string>();
 
   for (const component of components) {
-    const node = component.node as unknown as ProgramStatement;
+    const initPath = component.initPath;
 
-    if (node.id?.name !== undefined) {
-      names.add(node.id.name);
+    if (initPath === null || !isTopLevelDeclaration(initPath[0], statements)) {
+      continue;
     }
 
-    const declarator = component.initPath?.[1] as {id?: IdentifierLike} | undefined;
+    if (initPath.length === 1) {
+      const declaration = initPath[0] as unknown as ProgramStatement;
 
-    if (declarator?.id?.name !== undefined) {
-      names.add(declarator.id.name);
+      if (declaration.id?.name !== undefined) {
+        names.add(declaration.id.name);
+      }
+
+      continue;
     }
+
+    const declarator = initPath[1] as {id: {name: string}};
+
+    names.add(declarator.id.name);
   }
 
   return names;
@@ -233,17 +262,22 @@ function isAllowedComponentMetadataStatement(
     return false;
   }
 
-  const {left} = node.expression;
+  const {left, right} = node.expression as ExpressionLike & {
+    left: ExpressionLike;
+    right: ExpressionLike;
+  };
 
   return (
-    left?.type === "MemberExpression" &&
+    left.type === "MemberExpression" &&
     left.computed !== true &&
     left.object?.type === "Identifier" &&
     left.object.name !== undefined &&
     componentNames.has(left.object.name) &&
     left.property?.type === "Identifier" &&
     left.property.name !== undefined &&
-    COMPONENT_METADATA_PROPERTIES.has(left.property.name)
+    COMPONENT_METADATA_PROPERTIES.has(left.property.name) &&
+    right.type === "Literal" &&
+    typeof right.value === "string"
   );
 }
 
@@ -361,7 +395,7 @@ export const componentModule: Rule.RuleModule = {
 
     return createFunctionComponentVisitor(context, (node, components) => {
       const statements = node.body as unknown as ProgramStatement[];
-      const componentNames = getComponentNames(components);
+      const componentNames = getComponentNames(components, statements);
       const reactBindings = getReactBindings(statements);
 
       for (const statement of statements) {

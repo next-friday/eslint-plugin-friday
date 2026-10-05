@@ -262,6 +262,18 @@ ruleTester.run("props-in-body", propsInBody, {
       name: "rest-name policy ignores concise components without body destructuring",
       options: [{parameterName: "props", restName: "rest"}],
     },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const values = [, props.label];",
+        "  const {label, ...rest} = props;",
+        "  return <button data-count={values.length} {...rest}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name traversal tolerates nullable array visitor entries",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
   ],
   invalid: [
     ...REJECT_CASES.map(({filePath = tsxFixture, name, source}) => ({

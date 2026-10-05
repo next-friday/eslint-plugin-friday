@@ -85,6 +85,14 @@ const ALLOWED_CASES = [
   },
   {
     code: [
+      'import {type HeaderProps, HeaderRoot} from "./header";',
+      "export const Header = HeaderRoot;",
+      "export type Props = HeaderProps;",
+    ].join("\n"),
+    name: "type-only import specifiers are excluded from runtime bindings",
+  },
+  {
+    code: [
       'import {CalendarCell, CalendarGrid} from "./calendar";',
       "export const CalendarYearPicker = {",
       "  Cell: CalendarCell,",
@@ -123,6 +131,14 @@ const REPORTED_CASES = [
   {
     code: "const value = 1;\n",
     name: "local implementation",
+  },
+  {
+    code: "let value = 1;\n",
+    name: "mutable local implementation",
+  },
+  {
+    code: "function value() {}\n",
+    name: "local function implementation",
   },
   {
     code: "value++;\n",

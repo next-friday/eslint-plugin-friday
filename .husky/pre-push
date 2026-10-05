@@ -76,4 +76,4 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 pnpm verify
-pnpm exec diff-cover coverage/lcov.info --compare-branch "$remote_name/main" --fail-under 95 --show-uncovered --total-percent-float --ignore-staged --ignore-unstaged
+node scripts/check-patch-coverage.mjs --compare-branch "$remote_name/main" --fail-under 95 coverage/lcov.info

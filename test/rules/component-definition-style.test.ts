@@ -37,6 +37,19 @@ ruleTester.run("component-definition-style", componentDefinitionStyle, {
       name: "anonymous default component has no module binding to standardize",
     },
     {
+      code: "export default function() { return <button />; }",
+      filename,
+      name: "anonymous default function declaration has no binding to standardize",
+    },
+    {
+      code: [
+        'import {memo} from "react";',
+        "export default memo(function() { return <button />; });",
+      ].join("\n"),
+      filename,
+      name: "anonymous memo-wrapped function expression has no binding to standardize",
+    },
+    {
       code: "export const renderButton = () => <button />;",
       filename,
       name: "lowercase JSX utility is not a React component binding",

@@ -42,7 +42,6 @@
     "dev": "tsdown --watch",
     "docs:check": "pnpm build && eslint-doc-generator --check",
     "docs:generate": "pnpm build && eslint-doc-generator",
-    "fix": "pnpm lint && pnpm format",
     "format": "prettier --write --cache .",
     "format:check": "prettier --check --cache .",
     "knip": "knip",

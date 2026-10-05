@@ -213,11 +213,36 @@ const ALLOW_CASES: BehaviorCase[] = [
 ];
 
 ruleTester.run("props-in-body", propsInBody, {
-  valid: ALLOW_CASES.map(({filePath = tsxFixture, name, source}) => ({
-    code: source,
-    filename: filePath,
-    name,
-  })),
+  valid: [
+    ...ALLOW_CASES.map(({filePath = tsxFixture, name, source}) => ({
+      code: source,
+      filename: filePath,
+      name,
+    })),
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...rest} = props;",
+        "  return <button {...rest}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "canonical parameter and rest names",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "declare const defaults: {label: string};",
+        "export function Button(props: {label: string} = defaults) {",
+        "  const {label} = props;",
+        BUTTON_RETURN,
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "defaulted identifier props parameter",
+      options: [{parameterName: "props"}],
+    },
+  ],
   invalid: [
     ...REJECT_CASES.map(({filePath = tsxFixture, name, source}) => ({
       code: source,
@@ -242,6 +267,25 @@ ruleTester.run("props-in-body", propsInBody, {
       ],
       filename: tsxFixture,
       name: "reports only the offending components in a mixed module",
+    },
+    {
+      code: "export function Button(properties: {label: string}) { return <button>{properties.label}</button>; }",
+      errors: [{messageId: "parameterName"}],
+      filename: tsxFixture,
+      name: "reports alternate props parameter names when configured",
+      options: [{parameterName: "props"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...restProps} = props;",
+        "  return <button {...restProps}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      errors: [{messageId: "restName"}],
+      filename: tsxFixture,
+      name: "reports alternate rest binding names when configured",
+      options: [{parameterName: "props", restName: "rest"}],
     },
   ],
 });

@@ -70,4 +70,10 @@ if [ "$has_push" -eq 0 ] || [ "$has_heavy" -eq 0 ]; then
   exit 0
 fi
 
+if [ -n "$(git status --porcelain)" ]; then
+  printf '%s\n' "pre-push verification requires a clean working tree so coverage matches HEAD." >&2
+  exit 1
+fi
+
 pnpm verify
+pnpm exec diff-cover coverage/lcov.info --compare-branch "$remote_name/main" --fail-under 95 --show-uncovered --total-percent-float --ignore-staged --ignore-unstaged

@@ -274,6 +274,32 @@ ruleTester.run("props-in-body", propsInBody, {
       name: "rest-name traversal tolerates nullable array visitor entries",
       options: [{parameterName: "props", restName: "rest"}],
     },
+    {
+      code: [
+        "export function Button(props: {enabled: boolean; label: string}) {",
+        "  if (props.enabled) {",
+        '    const props = {label: "local"};',
+        "    const {label, ...restProps} = props;",
+        "    return <button>{label}{Object.keys(restProps).length}</button>;",
+        "  }",
+        "  return <button>{props.label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name policy ignores a shadowed local props binding",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...restProps} = externalProps;",
+        "  return <button data-rest={Object.keys(restProps).length}>{props.label}{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name policy ignores an unrelated unresolved binding",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
   ],
   invalid: [
     ...REJECT_CASES.map(({filePath = tsxFixture, name, source}) => ({

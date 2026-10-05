@@ -1,5 +1,5 @@
 import type {FunctionComponentSemanticNode} from "@eslint-react/core";
-import type {Rule} from "eslint";
+import type {Rule, Scope} from "eslint";
 
 import {createFunctionComponentVisitor} from "../utils/function-component-visitor";
 import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
@@ -81,10 +81,36 @@ function hasReportedDestructuredParameter(
   return false;
 }
 
+function isSameBinding(
+  context: Rule.RuleContext,
+  reference: IdentifierLike,
+  target: IdentifierLike,
+): boolean {
+  const resolveVariable = (identifier: IdentifierLike) => {
+    let scope: Scope.Scope | null = context.sourceCode.getScope(identifier);
+
+    while (scope !== null) {
+      const variable = identifier.name === undefined ? undefined : scope.set.get(identifier.name);
+
+      if (variable !== undefined) {
+        return variable;
+      }
+
+      scope = scope.upper;
+    }
+
+    return;
+  };
+
+  const referenceVariable = resolveVariable(reference);
+
+  return referenceVariable !== undefined && referenceVariable === resolveVariable(target);
+}
+
 function reportInvalidRestName(
   context: Rule.RuleContext,
   component: FunctionLike,
-  parameterName: string,
+  parameter: IdentifierLike,
   restName: string,
 ): void {
   const body = component.body;
@@ -107,7 +133,7 @@ function reportInvalidRestName(
         if (
           declaration.type !== "VariableDeclarator" ||
           declaration.init?.type !== "Identifier" ||
-          declaration.init.name !== parameterName ||
+          !isSameBinding(context, declaration.init, parameter) ||
           id?.type !== "ObjectPattern"
         ) {
           continue;
@@ -203,7 +229,7 @@ export const propsInBody: Rule.RuleModule = {
           reportInvalidRestName(
             context,
             component.node as FunctionLike,
-            identifier.name,
+            identifier,
             options.restName,
           );
         }

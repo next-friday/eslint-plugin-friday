@@ -246,7 +246,7 @@ function getCompoundBridges(
       (statement.source === undefined || statement.source === null) &&
       statement.exportKind !== "type"
     ) {
-      const specifiers = statement.specifiers ?? [];
+      const specifiers = statement.specifiers as ModuleSpecifierLike[];
 
       for (const specifier of specifiers) {
         const exportName = specifier.exported?.name;

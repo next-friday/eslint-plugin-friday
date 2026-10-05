@@ -1,5 +1,11 @@
 # @next-friday/eslint-plugin-friday
 
+## 1.1.1
+
+### Patch Changes
+
+- d2b1dcb: Allow `friday/index-export-only` to accept matching public export aliases for local `*Compound` assemblies built from imported runtime bindings.
+
 ## 1.1.0
 
 ### Minor Changes

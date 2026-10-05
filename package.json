@@ -1,6 +1,6 @@
 {
   "name": "@next-friday/eslint-plugin-friday",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Next Friday-specific ESLint rules for shared engineering standards.",
   "keywords": [
     "eslint",

@@ -23,7 +23,9 @@ type ExpressionLike = {
   value?: unknown;
 };
 
-type ImportSpecifierLike = {
+type ModuleSpecifierLike = {
+  exportKind?: string;
+  exported?: IdentifierLike;
   importKind?: string;
   local?: IdentifierLike;
   type?: string;
@@ -56,11 +58,12 @@ type ProgramStatement = {
   declaration?: VariableDeclarationLike | {type: string} | null;
   declarations?: VariableDeclaratorLike[];
   directive?: string;
+  exportKind?: string;
   importKind?: string;
   kind?: string;
   moduleReference?: {type: string};
-  source?: {value?: unknown};
-  specifiers?: ImportSpecifierLike[];
+  source?: {value?: unknown} | null;
+  specifiers?: ModuleSpecifierLike[];
   type: string;
 };
 
@@ -203,7 +206,7 @@ function getExportedConstDeclarator(node: ProgramStatement): VariableDeclaratorL
 }
 
 /**
- * Collect the narrow two-step compound bridge used when generic call signatures must be preserved.
+ * Collect narrow local compound bridges used for public aliases or generic call signatures.
  * @param statements Program body statements.
  * @param importedBindings Runtime imports available to compound assembly.
  * @returns Supported local compound bridge pairs.
@@ -237,6 +240,34 @@ function getCompoundBridges(
   const bridges: CompoundBridge[] = [];
 
   for (const statement of statements) {
+    if (
+      statement.type === "ExportNamedDeclaration" &&
+      (statement.declaration === undefined || statement.declaration === null) &&
+      (statement.source === undefined || statement.source === null) &&
+      statement.exportKind !== "type"
+    ) {
+      const specifiers = statement.specifiers as ModuleSpecifierLike[];
+
+      for (const specifier of specifiers) {
+        const exportName = specifier.exported?.name;
+        const localName = specifier.local?.name;
+
+        if (
+          exportName !== undefined &&
+          localName !== undefined &&
+          specifier.type === "ExportSpecifier" &&
+          specifier.exportKind !== "type" &&
+          PASCAL_CASE.test(exportName) &&
+          localName === `${exportName}Compound` &&
+          localAssemblies.has(localName)
+        ) {
+          bridges.push({exportName, localName});
+        }
+      }
+
+      continue;
+    }
+
     const declarator = getExportedConstDeclarator(statement);
     const exportName = declarator?.id?.name;
     const initializer = declarator?.init;

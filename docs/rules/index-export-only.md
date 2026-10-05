@@ -25,7 +25,19 @@ A root-only component may expose a PascalCase imported alias, and a namespace-on
 
 The assembly allowance is deliberately narrow: runtime aliases/namespaces must be PascalCase public bindings, and all exposed values must be imported runtime identifiers. Callbacks, computed runtime values, spreads, and arbitrary object construction are not accepted.
 
-A paired local `*Compound` assembly followed by an exported typed bridge is allowed for generic call-signature preservation.
+A local `*Compound` assembly may be exported through a matching public alias:
+
+```ts
+import {ButtonRoot} from "./button";
+
+const ButtonCompound = Object.assign(ButtonRoot, {
+  Root: ButtonRoot,
+});
+
+export {ButtonCompound as Button};
+```
+
+A paired local `*Compound` assembly followed by an exported typed bridge is also allowed for generic call-signature preservation.
 
 ## Examples
 

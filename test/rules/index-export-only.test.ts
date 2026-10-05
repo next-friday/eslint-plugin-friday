@@ -80,6 +80,14 @@ const ALLOWED_CASES = [
     name: "typed compound bridge for generic call signatures",
   },
   {
+    code: [
+      'import {ButtonRoot} from "./button";',
+      "const ButtonCompound = Object.assign(ButtonRoot, {Root: ButtonRoot});",
+      "export {ButtonCompound as Button};",
+    ].join("\n"),
+    name: "compound component export alias bridge",
+  },
+  {
     code: ['import {HeaderRoot} from "./header";', "export const Header = HeaderRoot;"].join("\n"),
     name: "PascalCase public alias of an imported runtime binding",
   },
@@ -167,6 +175,14 @@ const REPORTED_CASES = [
       "const AccordionCompound = Object.assign(AccordionRoot, {Root: AccordionRoot});",
     ].join("\n"),
     name: "unexported local compound assembly",
+  },
+  {
+    code: [
+      'import {ButtonRoot} from "./button";',
+      "const ButtonCompound = Object.assign(ButtonRoot, {Root: ButtonRoot});",
+      "export {ButtonCompound as Other};",
+    ].join("\n"),
+    name: "compound export alias with mismatched public name",
   },
   {
     code: ['import {value} from "./value";', "export const config = value;"].join("\n"),

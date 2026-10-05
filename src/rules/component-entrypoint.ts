@@ -4,35 +4,10 @@ import type {Rule} from "eslint";
 import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
 
 const ASSEMBLY_MESSAGE_ID = "componentAssembly";
-const TYPE_CONTRACT_MESSAGE_ID = "componentTypeContract";
 
 type IdentifierLike = {
   name?: string;
   type?: string;
-};
-
-type TypeNodeLike = {
-  exprName?: IdentifierLike;
-  params?: TypeNodeLike[];
-  type?: string;
-  typeAnnotation?: TypeNodeLike;
-  typeArguments?: TypeNodeLike;
-  typeName?: IdentifierLike;
-};
-
-type TypeMemberLike = {
-  key?: IdentifierLike;
-  type?: string;
-  typeAnnotation?: TypeNodeLike;
-};
-
-type TypeAliasLike = {
-  id?: IdentifierLike;
-  type?: string;
-  typeAnnotation?: {
-    members?: TypeMemberLike[];
-    type?: string;
-  };
 };
 
 type PropertyLike = {
@@ -68,7 +43,7 @@ type VariableDeclarationLike = {
 };
 
 type ProgramStatement = {
-  declaration?: TypeAliasLike | VariableDeclarationLike | null;
+  declaration?: VariableDeclarationLike | null;
   declarations?: VariableDeclaratorLike[];
   kind?: string;
   type: string;
@@ -88,10 +63,6 @@ type ComponentCandidate = {
   exportName: string;
   assembly?: CompoundAssembly;
   node: Rule.Node;
-};
-
-type RuleOptions = {
-  ignoreMembers?: string[];
 };
 
 const PASCAL_CASE = /^[A-Z][A-Za-z0-9]*$/u;
@@ -280,104 +251,6 @@ function getComponentCandidate(
 }
 
 /**
- * Collect exported component namespace type aliases by name.
- * @param statements Program body statements.
- * @returns Exported type aliases by identifier.
- */
-function getExportedTypeAliases(
-  statements: readonly ProgramStatement[],
-): ReadonlyMap<string, TypeAliasLike> {
-  const aliases = new Map<string, TypeAliasLike>();
-
-  for (const statement of statements) {
-    if (
-      statement.type !== "ExportNamedDeclaration" ||
-      statement.declaration?.type !== "TSTypeAliasDeclaration"
-    ) {
-      continue;
-    }
-
-    const alias = statement.declaration as TypeAliasLike;
-
-    if (alias.id?.name !== undefined) {
-      aliases.set(alias.id.name, alias);
-    }
-  }
-
-  return aliases;
-}
-
-/**
- * Get the identifier targeted by ComponentProps<typeof Identifier<...>>.
- * @param member Type literal property signature.
- * @returns Queried component identifier when the member has the canonical ComponentProps shape.
- */
-function getComponentPropsTarget(member: TypeMemberLike): string | undefined {
-  const annotation = member.typeAnnotation?.typeAnnotation;
-
-  if (
-    member.type !== "TSPropertySignature" ||
-    annotation?.type !== "TSTypeReference" ||
-    annotation.typeName?.type !== "Identifier" ||
-    annotation.typeName.name !== "ComponentProps" ||
-    annotation.typeArguments?.type !== "TSTypeParameterInstantiation" ||
-    annotation.typeArguments.params?.length !== 1
-  ) {
-    return undefined;
-  }
-
-  const [parameter] = annotation.typeArguments.params ?? [];
-
-  return parameter?.type === "TSTypeQuery" && parameter.exprName?.type === "Identifier"
-    ? parameter.exprName.name
-    : undefined;
-}
-
-/**
- * Check whether a component namespace type exposes every expected prop alias.
- * @param alias Exported component namespace type alias.
- * @param assembly Component public assembly.
- * @returns Missing or mismatched property names.
- */
-function getInvalidTypeContractMembers(
-  alias: TypeAliasLike | undefined,
-  assembly: CompoundAssembly,
-  ignoredMembers: ReadonlySet<string>,
-): string[] {
-  if (
-    alias?.typeAnnotation?.type !== "TSTypeLiteral" ||
-    alias.typeAnnotation.members === undefined
-  ) {
-    return ["Props", "RootProps"];
-  }
-
-  const actual = new Map<string, string | undefined>();
-
-  for (const member of alias.typeAnnotation.members) {
-    if (member.key?.type === "Identifier" && member.key.name !== undefined) {
-      actual.set(member.key.name, getComponentPropsTarget(member));
-    }
-  }
-
-  const expected = new Map<string, string>([
-    ["Props", assembly.baseName],
-    ["RootProps", assembly.baseName],
-  ]);
-
-  for (const [memberName, bindingName] of assembly.members) {
-    if (memberName === "Root" || ignoredMembers.has(memberName)) {
-      continue;
-    }
-
-    expected.set(`${memberName}Props`, bindingName);
-  }
-
-  return [...expected]
-    .filter(([propertyName, bindingName]) => actual.get(propertyName) !== bindingName)
-    .map(([propertyName]) => propertyName);
-}
-
-/**
  * Check whether a filename belongs to a component index entrypoint.
  * @param filename Filename reported by ESLint.
  * @returns Whether the final basename is exactly index.
@@ -392,13 +265,9 @@ export const componentEntrypoint: Rule.RuleModule = {
       return {};
     }
 
-    const [options] = context.options as [RuleOptions?];
-    const ignoredMembers = new Set(options?.ignoreMembers);
-
     const checkProgram = (node: unknown): void => {
       const program = node as ProgramNode;
       const localAssemblies = getLocalCompoundAssemblies(program.body);
-      const aliases = getExportedTypeAliases(program.body);
 
       for (const statement of program.body) {
         const candidate = getComponentCandidate(statement, localAssemblies);
@@ -419,25 +288,6 @@ export const componentEntrypoint: Rule.RuleModule = {
             messageId: ASSEMBLY_MESSAGE_ID,
             node: candidate.node,
           });
-
-          continue;
-        }
-
-        const invalidMembers = getInvalidTypeContractMembers(
-          aliases.get(exportName),
-          assembly,
-          ignoredMembers,
-        );
-
-        if (invalidMembers.length > 0) {
-          context.report({
-            data: {
-              members: invalidMembers.join(", "),
-              name: exportName,
-            },
-            messageId: TYPE_CONTRACT_MESSAGE_ID,
-            node: (aliases.get(exportName) ?? candidate.node) as Rule.Node,
-          });
         }
       }
     };
@@ -448,16 +298,13 @@ export const componentEntrypoint: Rule.RuleModule = {
     languages: ["js/js"],
     type: "suggestion",
     docs: {
-      description:
-        "require Friday component index entrypoints to expose a symmetric compound API and component props namespace",
+      description: "require Friday component index entrypoints to expose a canonical compound API",
       url: getRuleDocumentationUrl("component-entrypoint"),
     },
     defaultOptions: [{ignoreMembers: []}],
     messages: {
       [ASSEMBLY_MESSAGE_ID]:
         "Assemble component '{{name}}' with Object.assign({{name}}Root, {...}) and expose Root: {{name}}Root.",
-      [TYPE_CONTRACT_MESSAGE_ID]:
-        "Component '{{name}}' must expose matching ComponentProps aliases for: {{members}}.",
     },
     schema: [
       {
@@ -466,7 +313,7 @@ export const componentEntrypoint: Rule.RuleModule = {
         properties: {
           ignoreMembers: {
             description:
-              "Static compound API member names that are utilities rather than React components and therefore do not require ComponentProps aliases.",
+              "Compatibility option retained for existing configurations; it has no effect because this rule no longer validates ComponentProps aliases.",
             type: "array",
             uniqueItems: true,
             items: {type: "string"},

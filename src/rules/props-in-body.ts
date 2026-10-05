@@ -7,6 +7,11 @@ import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
 const DESTRUCTURE_MESSAGE_ID = "propertiesInBody";
 const PARAMETER_NAME_MESSAGE_ID = "parameterName";
 const REST_NAME_MESSAGE_ID = "restName";
+const FUNCTION_NODE_TYPES = new Set([
+  "ArrowFunctionExpression",
+  "FunctionDeclaration",
+  "FunctionExpression",
+]);
 
 type ComponentParameter = FunctionComponentSemanticNode["node"]["params"][number];
 
@@ -17,6 +22,8 @@ type IdentifierLike = Rule.Node & {
 
 type PatternLike = Rule.Node & {
   argument?: IdentifierLike;
+  declarations?: PatternLike[];
+  id?: PatternLike;
   init?: IdentifierLike | null;
   left?: PatternLike;
   name?: string;
@@ -25,10 +32,7 @@ type PatternLike = Rule.Node & {
 };
 
 type FunctionLike = {
-  body?: {
-    body?: PatternLike[];
-    type?: string;
-  };
+  body?: PatternLike;
 };
 
 type RuleOptions = {
@@ -83,45 +87,84 @@ function reportInvalidRestName(
   parameterName: string,
   restName: string,
 ): void {
-  const statements = component.body?.type === "BlockStatement" ? (component.body.body ?? []) : [];
+  const body = component.body;
 
-  for (const statement of statements) {
-    if (statement.type !== "VariableDeclaration") {
-      continue;
+  if (body?.type !== "BlockStatement") {
+    return;
+  }
+
+  const visit = (node: Rule.Node, isRoot = false): void => {
+    if (!isRoot && FUNCTION_NODE_TYPES.has(node.type)) {
+      return;
     }
 
-    const declarations =
-      (statement as PatternLike & {declarations?: PatternLike[]}).declarations ?? [];
+    if (node.type === "VariableDeclaration") {
+      const declarations = (node as PatternLike).declarations ?? [];
 
-    for (const declaration of declarations) {
-      const id = (declaration as PatternLike & {id?: PatternLike}).id;
+      for (const declaration of declarations) {
+        const id = declaration.id;
 
-      if (
-        declaration.type !== "VariableDeclarator" ||
-        declaration.init?.type !== "Identifier" ||
-        declaration.init.name !== parameterName ||
-        id?.type !== "ObjectPattern"
-      ) {
-        continue;
-      }
-
-      const properties = id.properties ?? [];
-
-      for (const property of properties) {
         if (
-          property.type === "RestElement" &&
-          property.argument?.type === "Identifier" &&
-          property.argument.name !== restName
+          declaration.type !== "VariableDeclarator" ||
+          declaration.init?.type !== "Identifier" ||
+          declaration.init.name !== parameterName ||
+          id?.type !== "ObjectPattern"
         ) {
-          context.report({
-            messageId: REST_NAME_MESSAGE_ID,
-            data: {name: restName},
-            node: property.argument,
-          });
+          continue;
+        }
+
+        const properties = id.properties ?? [];
+
+        for (const property of properties) {
+          if (
+            property.type === "RestElement" &&
+            property.argument?.type === "Identifier" &&
+            property.argument.name !== restName
+          ) {
+            context.report({
+              messageId: REST_NAME_MESSAGE_ID,
+              data: {name: restName},
+              node: property.argument,
+            });
+          }
         }
       }
     }
-  }
+
+    const record = node as unknown as Record<string, unknown>;
+
+    const visitorKeys = context.sourceCode.visitorKeys[node.type] ?? [];
+
+    for (const key of visitorKeys) {
+      const child = record[key];
+
+      if (Array.isArray(child)) {
+        for (const entry of child) {
+          if (
+            typeof entry === "object" &&
+            entry !== null &&
+            "type" in entry &&
+            typeof entry.type === "string"
+          ) {
+            visit(entry as Rule.Node);
+          }
+        }
+
+        continue;
+      }
+
+      if (
+        typeof child === "object" &&
+        child !== null &&
+        "type" in child &&
+        typeof child.type === "string"
+      ) {
+        visit(child as Rule.Node);
+      }
+    }
+  };
+
+  visit(body, true);
 }
 
 export const propsInBody: Rule.RuleModule = {

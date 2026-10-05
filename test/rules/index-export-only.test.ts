@@ -178,10 +178,44 @@ ruleTester.run("index-export-only", indexExportOnly, {
       name: "does not apply to non-index files",
     },
   ],
-  invalid: REPORTED_CASES.map(({code, name}) => ({
-    code,
-    errors: [{messageId: "indexExportOnly"}],
-    filename,
-    name,
-  })),
+  invalid: [
+    ...REPORTED_CASES.map(({code, name}) => ({
+      code,
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name,
+    })),
+    {
+      code: [
+        'import {CalendarRoot} from "./calendar";',
+        "type Component = (props: unknown) => unknown;",
+        "const OtherCompound = Object.assign(CalendarRoot, {Root: CalendarRoot});",
+        "export const Other = OtherCompound as Component & typeof OtherCompound;",
+        "export const Calendar = OtherCompound as Component & typeof OtherCompound;",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name: "typed bridge with a mismatched export name",
+    },
+    {
+      code: [
+        'import {CalendarRoot} from "./calendar";',
+        "type CalendarComponent = (props: unknown) => unknown;",
+        "const CalendarCompound = CalendarRoot;",
+        "export const Calendar = CalendarCompound as CalendarComponent & typeof CalendarCompound;",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}, {messageId: "indexExportOnly"}],
+      filename,
+      name: "typed bridge with a non-assembly local value",
+    },
+    {
+      code: [
+        'import type {Root} from "./root";',
+        "export const Accordion = Object.assign(Root, {Root});",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name: "compound assembly using a type-only import",
+    },
+  ],
 });

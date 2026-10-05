@@ -22,13 +22,17 @@ function getComponentName(component: FunctionComponentSemanticNode): IdentifierL
 
   const initPath = component.initPath;
 
+  if (initPath?.some(pathNode => pathNode.type === "Property") === true) {
+    return undefined;
+  }
+
   if (initPath !== null && initPath.length > 1) {
     const declarator = initPath[1] as {id?: IdentifierLike};
 
     return declarator.id?.type === "Identifier" ? declarator.id : undefined;
   }
 
-  return undefined;
+  return node.type === "FunctionExpression" ? (node.id ?? undefined) : undefined;
 }
 
 export const componentDefinitionStyle: Rule.RuleModule = {

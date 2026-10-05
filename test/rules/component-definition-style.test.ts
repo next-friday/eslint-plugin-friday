@@ -46,6 +46,11 @@ ruleTester.run("component-definition-style", componentDefinitionStyle, {
       filename,
       name: "custom Hook-shaped utility is not a component binding",
     },
+    {
+      code: "export const Components = {Button: () => <button />};",
+      filename,
+      name: "object-property component is not attributed to its containing variable",
+    },
   ],
   invalid: [
     {
@@ -76,6 +81,15 @@ ruleTester.run("component-definition-style", componentDefinitionStyle, {
       errors: [{messageId: "functionDeclaration"}],
       filename,
       name: "forwardRef-wrapped arrow component",
+    },
+    {
+      code: [
+        'import {memo} from "react";',
+        "export default memo(function Button() { return <button />; });",
+      ].join("\n"),
+      errors: [{messageId: "functionDeclaration"}],
+      filename,
+      name: "default-exported memo-wrapped named function expression",
     },
   ],
 });

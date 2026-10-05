@@ -1,45 +1,62 @@
 # props-in-body
 
-📝 Disallow object destructuring in the first parameter of React function components.
+📝 Require React function components to accept props through a named parameter and destructure them inside the body.
 
 <!-- end auto-generated rule header -->
 
 ## Behavior
 
-This rule keeps object destructuring out of a React function component's parameter list. It reports object destructuring in the first parameter, including when that parameter has a default value.
+This rule keeps object destructuring out of a React function component parameter list. Components accept a named parameter and destructure it inside the body.
+
+Optional policy can also require one canonical parameter name and one canonical rest binding name.
+
+## Options
+
+```js
+{
+  "friday/props-in-body": ["error", {
+    "parameterName": "props",
+    "restName": "rest"
+  }]
+}
+```
 
 ## Examples
 
 ### Reported
 
-Destructuring props in the signature is reported:
+```tsx
+function Button({label}: ButtonProps) {
+  return <button>{label}</button>;
+}
+```
+
+With `parameterName: "props"`:
 
 ```tsx
-export function Button({label}: {label: string}) {
-  return <button>{label}</button>;
+function Button(properties: ButtonProps) {
+  return <button>{properties.label}</button>;
+}
+```
+
+With `restName: "rest"`:
+
+```tsx
+function Button(props: ButtonProps) {
+  const {label, ...restProps} = props;
+  return <button {...restProps}>{label}</button>;
 }
 ```
 
 ### Accepted
 
-Accept props as a named parameter and destructure inside the component body:
-
 ```tsx
-export function Button(props: {label: string}) {
-  const {label} = props;
-
-  return <button>{label}</button>;
-}
-```
-
-Destructuring in the body is optional. Reading through the parameter directly is also accepted:
-
-```tsx
-export function Button(props: {label: string}) {
-  return <button>{props.label}</button>;
+function Button(props: ButtonProps) {
+  const {label, ...rest} = props;
+  return <button {...rest}>{label}</button>;
 }
 ```
 
 ## Scope and limitations
 
-The rule checks the first parameter of components recognized by `@eslint-react/core`. Detected forms include function declarations, function expressions, arrow functions, and arrows passed to React's `memo` or `forwardRef`. Detection also considers function context and implementation signals such as JSX returns or Hook calls; other edge cases follow `@eslint-react/core`'s classification. It does not report array destructuring or destructuring in callbacks and other function parameters. The rule has no options or autofix.
+The rule checks components recognized by `@eslint-react/core`. Parameter and rest naming are opt-in so existing consumers keep the previous behavior until the shared config enables the stricter contract. Rest-name enforcement applies to direct object destructuring from the component props parameter in the component body.

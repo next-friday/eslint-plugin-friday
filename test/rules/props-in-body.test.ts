@@ -213,11 +213,94 @@ const ALLOW_CASES: BehaviorCase[] = [
 ];
 
 ruleTester.run("props-in-body", propsInBody, {
-  valid: ALLOW_CASES.map(({filePath = tsxFixture, name, source}) => ({
-    code: source,
-    filename: filePath,
-    name,
-  })),
+  valid: [
+    ...ALLOW_CASES.map(({filePath = tsxFixture, name, source}) => ({
+      code: source,
+      filename: filePath,
+      name,
+    })),
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...rest} = props;",
+        "  return <button {...rest}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "canonical parameter and rest names",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "declare const defaults: {label: string};",
+        "export function Button(props: {label: string} = defaults) {",
+        "  const {label} = props;",
+        BUTTON_RETURN,
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "defaulted identifier props parameter",
+      options: [{parameterName: "props"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const render = () => {",
+        "    const {label, ...restProps} = props;",
+        "    return <button {...restProps}>{label}</button>;",
+        "  };",
+        "  return <>{render()}</>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "does not inspect rest bindings inside nested functions",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: "export const Button = (props: {label: string}) => <button>{props.label}</button>;",
+      filename: tsxFixture,
+      name: "rest-name policy ignores concise components without body destructuring",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const values = [, props.label];",
+        "  const {label, ...rest} = props;",
+        "  return <button data-count={values.length} {...rest}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name traversal tolerates nullable array visitor entries",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "export function Button(props: {enabled: boolean; label: string}) {",
+        "  if (props.enabled) {",
+        '    const props = {label: "local"};',
+        "    const {label, ...restProps} = props;",
+        "    return <button>{label}{Object.keys(restProps).length}</button>;",
+        "  }",
+        "  return <button>{props.label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name policy ignores a shadowed local props binding",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...restProps} = externalProps;",
+        "  return <button data-rest={Object.keys(restProps).length}>{props.label}{label}</button>;",
+        "}",
+      ].join("\n"),
+      filename: tsxFixture,
+      name: "rest-name policy ignores an unrelated unresolved binding",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+  ],
   invalid: [
     ...REJECT_CASES.map(({filePath = tsxFixture, name, source}) => ({
       code: source,
@@ -242,6 +325,40 @@ ruleTester.run("props-in-body", propsInBody, {
       ],
       filename: tsxFixture,
       name: "reports only the offending components in a mixed module",
+    },
+    {
+      code: "export function Button(properties: {label: string}) { return <button>{properties.label}</button>; }",
+      errors: [{messageId: "parameterName"}],
+      filename: tsxFixture,
+      name: "reports alternate props parameter names when configured",
+      options: [{parameterName: "props"}],
+    },
+    {
+      code: [
+        "export function Button(props: {label: string}) {",
+        "  const {label, ...restProps} = props;",
+        "  return <button {...restProps}>{label}</button>;",
+        "}",
+      ].join("\n"),
+      errors: [{messageId: "restName"}],
+      filename: tsxFixture,
+      name: "reports alternate rest binding names when configured",
+      options: [{parameterName: "props", restName: "rest"}],
+    },
+    {
+      code: [
+        "export function Button(props: {enabled: boolean; label: string}) {",
+        "  if (props.enabled) {",
+        "    const {label, ...restProps} = props;",
+        "    return <button {...restProps}>{label}</button>;",
+        "  }",
+        "  return null;",
+        "}",
+      ].join("\n"),
+      errors: [{messageId: "restName"}],
+      filename: tsxFixture,
+      name: "reports alternate rest binding names inside nested blocks",
+      options: [{parameterName: "props", restName: "rest"}],
     },
   ],
 });

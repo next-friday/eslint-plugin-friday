@@ -1,26 +1,46 @@
 # index-export-only
 
-📝 Require index files to contain only imports, exports without inline runtime implementation, directives, and type declarations.
+📝 Require index files to contain only public-surface syntax and narrowly scoped compound component API assembly.
 
 <!-- end auto-generated rule header -->
 
 ## Behavior
 
-An `index` file is a public barrel: it gathers exports while implementation stays in feature modules. This rule reports runtime declarations and other implementation statements in matching index files.
+An `index` file is a public entrypoint. Imports, re-exports, directives, and type declarations are allowed while unrelated runtime implementation is rejected.
+
+Friday component entrypoints may assemble their consumer API from imported runtime bindings.
+
+A compound component may use `Object.assign`:
+
+```ts
+import {AccordionBody, AccordionRoot} from "./accordion";
+
+export const Accordion = Object.assign(AccordionRoot, {
+  Body: AccordionBody,
+  Root: AccordionRoot,
+});
+```
+
+A root-only component may expose a PascalCase imported alias, and a namespace-only API may expose a PascalCase static object whose values are imported bindings. These are public-surface assembly, not implementation.
+
+The assembly allowance is deliberately narrow: runtime aliases/namespaces must be PascalCase public bindings, and all exposed values must be imported runtime identifiers. Callbacks, computed runtime values, spreads, and arbitrary object construction are not accepted.
+
+A paired local `*Compound` assembly followed by an exported typed bridge is allowed for generic call-signature preservation.
 
 ## Examples
 
 ### Reported
 
-The exported value is implemented in the barrel. Put the implementation in its owning feature module, then re-export it from the index file:
-
 ```ts
-export const componentCount = 3;
+export const config = Object.assign(
+  {},
+  {
+    timeout: calculateTimeout(),
+  },
+);
 ```
 
 ### Accepted
-
-Re-export runtime values and types from their implementation modules:
 
 ```ts
 export {Button} from "./button";
@@ -29,8 +49,4 @@ export type {ButtonProps} from "./button";
 
 ## Scope and exceptions
 
-The rule applies when the filename without its final extension is exactly `index` (for example, `index.ts` or `index.tsx`). It does not apply to names such as `index.test.ts`.
-
-Allowed top-level statements are imports, TypeScript external-module `import = require(...)` declarations, directives, interfaces, type aliases, `export *`, and named export lists, including local export lists and re-exports. A named export may also declare an interface or type alias.
-
-A default export is allowed only when its declaration is an identifier, such as `export default Component`. Inline default function or class declarations and other default expressions, such as literals, are reported. Runtime declarations and other top-level implementation statements are reported.
+The rule applies when the filename without its final extension is exactly `index`. Default exports remain limited to identifier exports. Runtime implementation that is not a supported compound public API assembly must stay in an owning implementation module.

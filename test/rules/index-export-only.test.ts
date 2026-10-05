@@ -57,6 +57,50 @@ const ALLOWED_CASES = [
     code: '"use strict";\n',
     name: "directive statement",
   },
+  {
+    code: [
+      'import {AccordionBody, AccordionRoot} from "./accordion";',
+      "export const Accordion = Object.assign(AccordionRoot, {",
+      "  Body: AccordionBody,",
+      "  Root: AccordionRoot,",
+      "});",
+    ].join("\n"),
+    name: "compound component public API assembly",
+  },
+  {
+    code: [
+      'import {CalendarCell, CalendarRoot} from "./calendar";',
+      "type CalendarComponent = (props: unknown) => unknown;",
+      "const CalendarCompound = Object.assign(CalendarRoot, {",
+      "  Cell: CalendarCell,",
+      "  Root: CalendarRoot,",
+      "});",
+      "export const Calendar = CalendarCompound as CalendarComponent & typeof CalendarCompound;",
+    ].join("\n"),
+    name: "typed compound bridge for generic call signatures",
+  },
+  {
+    code: ['import {HeaderRoot} from "./header";', "export const Header = HeaderRoot;"].join("\n"),
+    name: "PascalCase public alias of an imported runtime binding",
+  },
+  {
+    code: [
+      'import {type HeaderProps, HeaderRoot} from "./header";',
+      "export const Header = HeaderRoot;",
+      "export type Props = HeaderProps;",
+    ].join("\n"),
+    name: "type-only import specifiers are excluded from runtime bindings",
+  },
+  {
+    code: [
+      'import {CalendarCell, CalendarGrid} from "./calendar";',
+      "export const CalendarYearPicker = {",
+      "  Cell: CalendarCell,",
+      "  Grid: CalendarGrid,",
+      "};",
+    ].join("\n"),
+    name: "PascalCase static public namespace of imported runtime bindings",
+  },
 ];
 
 const REPORTED_CASES = [
@@ -89,8 +133,51 @@ const REPORTED_CASES = [
     name: "local implementation",
   },
   {
+    code: "let value = 1;\n",
+    name: "mutable local implementation",
+  },
+  {
+    code: "function value() {}\n",
+    name: "local function implementation",
+  },
+  {
     code: "value++;\n",
     name: "non-directive expression statement",
+  },
+  {
+    code: [
+      'import {AccordionRoot} from "./accordion";',
+      "export const config = Object.assign({}, {Root: AccordionRoot});",
+    ].join("\n"),
+    name: "Object.assign with a non-imported base",
+  },
+  {
+    code: [
+      'import {AccordionItem, AccordionRoot} from "./accordion";',
+      "export const Accordion = Object.assign(AccordionRoot, {",
+      "  Item: props => AccordionItem(props),",
+      "  Root: AccordionRoot,",
+      "});",
+    ].join("\n"),
+    name: "compound assembly with runtime callback",
+  },
+  {
+    code: [
+      'import {AccordionRoot} from "./accordion";',
+      "const AccordionCompound = Object.assign(AccordionRoot, {Root: AccordionRoot});",
+    ].join("\n"),
+    name: "unexported local compound assembly",
+  },
+  {
+    code: ['import {value} from "./value";', "export const config = value;"].join("\n"),
+    name: "lowercase runtime alias is not component public assembly",
+  },
+  {
+    code: [
+      'import {value} from "./value";',
+      "export const Config = {value, computed: build()};",
+    ].join("\n"),
+    name: "static namespace with computed runtime value",
   },
 ];
 
@@ -107,10 +194,44 @@ ruleTester.run("index-export-only", indexExportOnly, {
       name: "does not apply to non-index files",
     },
   ],
-  invalid: REPORTED_CASES.map(({code, name}) => ({
-    code,
-    errors: [{messageId: "indexExportOnly"}],
-    filename,
-    name,
-  })),
+  invalid: [
+    ...REPORTED_CASES.map(({code, name}) => ({
+      code,
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name,
+    })),
+    {
+      code: [
+        'import {CalendarRoot} from "./calendar";',
+        "type Component = (props: unknown) => unknown;",
+        "const OtherCompound = Object.assign(CalendarRoot, {Root: CalendarRoot});",
+        "export const Other = OtherCompound as Component & typeof OtherCompound;",
+        "export const Calendar = OtherCompound as Component & typeof OtherCompound;",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name: "typed bridge with a mismatched export name",
+    },
+    {
+      code: [
+        'import {CalendarRoot} from "./calendar";',
+        "type CalendarComponent = (props: unknown) => unknown;",
+        "const CalendarCompound = CalendarRoot;",
+        "export const Calendar = CalendarCompound as CalendarComponent & typeof CalendarCompound;",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}, {messageId: "indexExportOnly"}],
+      filename,
+      name: "typed bridge with a non-assembly local value",
+    },
+    {
+      code: [
+        'import type {Root} from "./root";',
+        "export const Accordion = Object.assign(Root, {Root});",
+      ].join("\n"),
+      errors: [{messageId: "indexExportOnly"}],
+      filename,
+      name: "compound assembly using a type-only import",
+    },
+  ],
 });

@@ -4,6 +4,8 @@ import packageJson from "../package.json" with {type: "json"};
 import plugin from "../src/index";
 
 const RULE_NAMES = [
+  "component-definition-style",
+  "component-entrypoint",
   "component-module",
   "index-export-only",
   "jsx-newline-between-elements",

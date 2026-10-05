@@ -1,5 +1,11 @@
 # @next-friday/eslint-plugin-friday
 
+## 1.1.0
+
+### Minor Changes
+
+- 16f2a76: Add deterministic React component contracts: support compound component API assembly in `index-export-only`, add configurable props/rest naming to `props-in-body`, and add `component-definition-style` plus `component-entrypoint` rules for consistent component and public entrypoint structure.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 ---
 name: create-github-issue
-description: Use when the user asks to draft or create a GitHub issue for a repository, including reporting a bug, requesting a feature, or filing an issue.
+description: Use whenever a GitHub issue is drafted or created, whether the user asks for it or an agent files one as a step of its own task, including reporting a bug, requesting a feature, or filing an issue.
 license: MIT
 ---
 

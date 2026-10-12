@@ -1,6 +1,6 @@
 ---
 name: create-github-pr
-description: Use when the user asks to draft or create a GitHub pull request for a repository or branch, including preparing a PR or opening one.
+description: Use whenever a GitHub pull request is drafted or created, whether the user asks for it or an agent opens one as a step of its own task, including preparing a PR or opening one.
 license: MIT
 ---
 

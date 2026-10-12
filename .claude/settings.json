@@ -8,7 +8,18 @@
       "Edit(./.claude/skills/**)",
       "Edit(./.commitlintrc.json)",
       "Edit(./.prettierrc.json)",
-      "Edit(./eslint.config.ts)"
+      "Edit(./eslint.config.ts)",
+      "Bash(gh workflow run *)",
+      "Bash(gh pr close *)",
+      "Bash(gh repo delete *)",
+      "Bash(gh secret *)",
+      "Bash(gh issue delete *)",
+      "Bash(*deleteIssue*)",
+      "Bash(gh api *DELETE*)",
+      "Bash(gh run delete *)",
+      "Bash(gh variable delete *)",
+      "Bash(gh release delete *)",
+      "Bash(git push * --delete *)"
     ]
   }
 }

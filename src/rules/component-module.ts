@@ -65,11 +65,11 @@ type RuleOptions = {
 };
 
 /**
- * Check whether a declaration contains only React function components.
- * @param node Declaration node to evaluate.
- * @param components React function components detected by the React detector.
- * @returns Whether the declaration contains only React function components.
- */
+Check whether a declaration contains only React function components.
+@param node Declaration node to evaluate.
+@param components React function components detected by the React detector.
+@returns Whether the declaration contains only React function components.
+*/
 function isAllowedComponentDeclaration(
   node: ProgramStatement,
   components: readonly FunctionComponentSemanticNode[],
@@ -96,10 +96,10 @@ function isAllowedComponentDeclaration(
 }
 
 /**
- * Collect local React bindings needed to recognize component-support declarations.
- * @param statements Top-level program statements.
- * @returns Local createContext and React namespace/default import names.
- */
+Collect local React bindings needed to recognize component-support declarations.
+@param statements Top-level program statements.
+@returns Local createContext and React namespace/default import names.
+*/
 function getReactBindings(statements: readonly ProgramStatement[]): ReactBindings {
   const createContextNames = new Set<string>();
   const namespaceNames = new Set<string>();
@@ -142,11 +142,11 @@ function getReactBindings(statements: readonly ProgramStatement[]): ReactBinding
 }
 
 /**
- * Check whether a declaration is owned directly by the program body or an export wrapper.
- * @param declaration Declaration node to locate.
- * @param statements Top-level program statements.
- * @returns Whether the declaration belongs to module scope.
- */
+Check whether a declaration is owned directly by the program body or an export wrapper.
+@param declaration Declaration node to locate.
+@param statements Top-level program statements.
+@returns Whether the declaration belongs to module scope.
+*/
 function isTopLevelDeclaration(
   declaration: unknown,
   statements: readonly ProgramStatement[],
@@ -159,11 +159,11 @@ function isTopLevelDeclaration(
 }
 
 /**
- * Collect module-scope bindings for detected React function components.
- * @param components React function components detected by the React detector.
- * @param statements Top-level program statements.
- * @returns Component bindings that can own component metadata or identifier exports.
- */
+Collect module-scope bindings for detected React function components.
+@param components React function components detected by the React detector.
+@param statements Top-level program statements.
+@returns Component bindings that can own component metadata or identifier exports.
+*/
 function getComponentNames(
   components: readonly FunctionComponentSemanticNode[],
   statements: readonly ProgramStatement[],
@@ -196,11 +196,11 @@ function getComponentNames(
 }
 
 /**
- * Check whether an expression calls React.createContext through a verified React import.
- * @param expression Candidate initializer.
- * @param reactBindings Local React bindings.
- * @returns Whether the expression is a React createContext call.
- */
+Check whether an expression calls React.createContext through a verified React import.
+@param expression Candidate initializer.
+@param reactBindings Local React bindings.
+@returns Whether the expression is a React createContext call.
+*/
 function isReactCreateContextCall(
   expression: ExpressionLike | null | undefined,
   reactBindings: ReactBindings,
@@ -225,11 +225,11 @@ function isReactCreateContextCall(
 }
 
 /**
- * Check whether a variable declaration contains only React structural declarations.
- * @param node Declaration node to evaluate.
- * @param reactBindings Local React bindings.
- * @returns Whether every declared value is a React context.
- */
+Check whether a variable declaration contains only React structural declarations.
+@param node Declaration node to evaluate.
+@param reactBindings Local React bindings.
+@returns Whether every declared value is a React context.
+*/
 function isAllowedReactStructuralDeclaration(
   node: ProgramStatement,
   reactBindings: ReactBindings,
@@ -245,11 +245,11 @@ function isAllowedReactStructuralDeclaration(
 }
 
 /**
- * Check whether a top-level statement assigns supported metadata to a detected component.
- * @param node Top-level program statement.
- * @param componentNames Detected local React component names.
- * @returns Whether the statement is supported component metadata.
- */
+Check whether a top-level statement assigns supported metadata to a detected component.
+@param node Top-level program statement.
+@param componentNames Detected local React component names.
+@returns Whether the statement is supported component metadata.
+*/
 function isAllowedComponentMetadataStatement(
   node: ProgramStatement,
   componentNames: ReadonlySet<string>,
@@ -282,11 +282,11 @@ function isAllowedComponentMetadataStatement(
 }
 
 /**
- * Check whether a declaration name is explicitly allowed by framework policy.
- * @param node Declaration node to evaluate.
- * @param allowedDeclarations Framework-owned declaration names.
- * @returns Whether every declaration name is allowed.
- */
+Check whether a declaration name is explicitly allowed by framework policy.
+@param node Declaration node to evaluate.
+@param allowedDeclarations Framework-owned declaration names.
+@returns Whether every declaration name is allowed.
+*/
 function isAllowedDeclarationName(
   node: ProgramStatement,
   allowedDeclarations: ReadonlySet<string>,
@@ -314,14 +314,14 @@ function isAllowedDeclarationName(
 }
 
 /**
- * Check whether an export contains only allowed declarations.
- * @param node Export statement to evaluate.
- * @param components React function components detected by the React detector.
- * @param componentNames Detected local React component names.
- * @param reactBindings Local React bindings.
- * @param allowedDeclarations Framework-owned declaration names.
- * @returns Whether the export belongs in the component module.
- */
+Check whether an export contains only allowed declarations.
+@param node Export statement to evaluate.
+@param components React function components detected by the React detector.
+@param componentNames Detected local React component names.
+@param reactBindings Local React bindings.
+@param allowedDeclarations Framework-owned declaration names.
+@returns Whether the export belongs in the component module.
+*/
 function isAllowedExportStatement(
   node: ProgramStatement,
   components: readonly FunctionComponentSemanticNode[],
@@ -352,10 +352,10 @@ function isAllowedExportStatement(
 }
 
 /**
- * Check whether the statement is permitted module syntax.
- * @param node Top-level program statement.
- * @returns Whether the statement is an import, re-export, type declaration, or directive.
- */
+Check whether the statement is permitted module syntax.
+@param node Top-level program statement.
+@returns Whether the statement is an import, re-export, type declaration, or directive.
+*/
 function isAllowedModuleSyntax(node: ProgramStatement): boolean {
   return (
     ALLOWED_MODULE_STATEMENT_TYPES.has(node.type) ||
@@ -364,14 +364,14 @@ function isAllowedModuleSyntax(node: ProgramStatement): boolean {
 }
 
 /**
- * Check whether a top-level statement is permitted in a React component module.
- * @param node Top-level program statement.
- * @param components React function components detected by the React detector.
- * @param componentNames Detected local React component names.
- * @param reactBindings Local React bindings.
- * @param allowedDeclarations Framework-owned declaration names.
- * @returns Whether the statement belongs in a JSX or TSX component module.
- */
+Check whether a top-level statement is permitted in a React component module.
+@param node Top-level program statement.
+@param components React function components detected by the React detector.
+@param componentNames Detected local React component names.
+@param reactBindings Local React bindings.
+@param allowedDeclarations Framework-owned declaration names.
+@returns Whether the statement belongs in a JSX or TSX component module.
+*/
 function isAllowedStatement(
   node: ProgramStatement,
   components: readonly FunctionComponentSemanticNode[],

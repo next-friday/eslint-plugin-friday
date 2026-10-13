@@ -6,7 +6,7 @@ import packageJson from "eslint-plugin-package-json";
 import unicorn from "eslint-plugin-unicorn";
 import tseslint from "typescript-eslint";
 
-export default defineConfig(
+const config = defineConfig(
   globalIgnores(["dist/**", "coverage/**"]),
   eslint.configs.recommended,
   ...tseslint.configs.strict,
@@ -62,3 +62,5 @@ export default defineConfig(
   },
   eslintConfigPrettier,
 );
+
+export default config;

@@ -17,10 +17,10 @@ type TypedParameter = {
 };
 
 /**
- * Get the typed identifier behind a component parameter.
- * @param parameter Component parameter to inspect.
- * @returns Typed identifier parameter, including one wrapped by a default assignment.
- */
+Get the typed identifier behind a component parameter.
+@param parameter Component parameter to inspect.
+@returns Typed identifier parameter, including one wrapped by a default assignment.
+*/
 function getTypedParameter(parameter: ComponentParameter | undefined): TypedParameter | undefined {
   if (parameter === undefined) {
     return undefined;

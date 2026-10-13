@@ -1,6 +1,6 @@
 import {defineConfig} from "tsdown";
 
-export default defineConfig({
+const config = defineConfig({
   platform: "node",
   clean: true,
   dts: true,
@@ -8,3 +8,5 @@ export default defineConfig({
   entry: {index: "src/index.ts"},
   format: ["esm"],
 });
+
+export default config;

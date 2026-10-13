@@ -13,11 +13,11 @@ const SIGNIFICANT_JSX_CHILD_TYPES = new Set([
 ]);
 
 /**
- * Check whether adjacent significant JSX children need a separating empty line.
- * @param current Previous significant JSX child.
- * @param next Next significant JSX child.
- * @returns Whether at least one child is multi-line and no empty line exists.
- */
+Check whether adjacent significant JSX children need a separating empty line.
+@param current Previous significant JSX child.
+@param next Next significant JSX child.
+@returns Whether at least one child is multi-line and no empty line exists.
+*/
 function canRequireGap(current: JsxChild, next: JsxChild): boolean {
   if (
     !SIGNIFICANT_JSX_CHILD_TYPES.has(current.type) ||
@@ -34,10 +34,10 @@ function canRequireGap(current: JsxChild, next: JsxChild): boolean {
 }
 
 /**
- * Enforce blank lines around multi-line JSX siblings.
- * @param context Active ESLint rule context.
- * @param children JSX children belonging to one element or fragment.
- */
+Enforce blank lines around multi-line JSX siblings.
+@param context Active ESLint rule context.
+@param children JSX children belonging to one element or fragment.
+*/
 function checkSiblings(context: Rule.RuleContext, children: readonly JsxChild[]): void {
   const siblings = children.filter(child => !isIgnorableJsxText(child));
   let index = 0;

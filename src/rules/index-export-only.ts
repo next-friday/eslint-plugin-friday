@@ -75,11 +75,11 @@ type CompoundBridge = {
 const PASCAL_CASE = /^[A-Z][A-Za-z0-9]*$/u;
 
 /**
- * Check whether an expression is an identifier with a known runtime import binding.
- * @param expression Expression to inspect.
- * @param importedBindings Runtime bindings imported by the index module.
- * @returns Whether the expression references an imported runtime value.
- */
+Check whether an expression is an identifier with a known runtime import binding.
+@param expression Expression to inspect.
+@param importedBindings Runtime bindings imported by the index module.
+@returns Whether the expression references an imported runtime value.
+*/
 function isImportedIdentifier(
   expression: ExpressionLike | undefined,
   importedBindings: ReadonlySet<string>,
@@ -92,11 +92,11 @@ function isImportedIdentifier(
 }
 
 /**
- * Check whether an expression is a static public namespace assembled from imported values.
- * @param expression Candidate object expression.
- * @param importedBindings Runtime bindings imported by the index module.
- * @returns Whether the object only exposes imported runtime values.
- */
+Check whether an expression is a static public namespace assembled from imported values.
+@param expression Candidate object expression.
+@param importedBindings Runtime bindings imported by the index module.
+@returns Whether the object only exposes imported runtime values.
+*/
 function isStaticImportedObject(
   expression: ExpressionLike | null | undefined,
   importedBindings: ReadonlySet<string>,
@@ -117,11 +117,11 @@ function isStaticImportedObject(
 }
 
 /**
- * Check whether an expression is a narrow static compound API assembly.
- * @param expression Candidate Object.assign call.
- * @param importedBindings Runtime bindings imported by the index module.
- * @returns Whether the expression only composes imported bindings into a static object.
- */
+Check whether an expression is a narrow static compound API assembly.
+@param expression Candidate Object.assign call.
+@param importedBindings Runtime bindings imported by the index module.
+@returns Whether the expression only composes imported bindings into a static object.
+*/
 function isCompoundAssembly(
   expression: ExpressionLike | null | undefined,
   importedBindings: ReadonlySet<string>,
@@ -158,10 +158,10 @@ function isCompoundAssembly(
 }
 
 /**
- * Collect runtime imports available for public API assembly.
- * @param statements Program body statements.
- * @returns Imported runtime binding names.
- */
+Collect runtime imports available for public API assembly.
+@param statements Program body statements.
+@returns Imported runtime binding names.
+*/
 function getImportedRuntimeBindings(statements: readonly ProgramStatement[]): ReadonlySet<string> {
   const bindings = new Set<string>();
 
@@ -189,10 +189,10 @@ function getImportedRuntimeBindings(statements: readonly ProgramStatement[]): Re
 }
 
 /**
- * Get the single exported const declarator from a named export.
- * @param node Export statement to inspect.
- * @returns The exported declarator when the export has the supported shape.
- */
+Get the single exported const declarator from a named export.
+@param node Export statement to inspect.
+@returns The exported declarator when the export has the supported shape.
+*/
 function getExportedConstDeclarator(node: ProgramStatement): VariableDeclaratorLike | undefined {
   if (node.type !== "ExportNamedDeclaration" || node.declaration?.type !== "VariableDeclaration") {
     return undefined;
@@ -206,11 +206,11 @@ function getExportedConstDeclarator(node: ProgramStatement): VariableDeclaratorL
 }
 
 /**
- * Collect narrow local compound bridges used for public aliases or generic call signatures.
- * @param statements Program body statements.
- * @param importedBindings Runtime imports available to compound assembly.
- * @returns Supported local compound bridge pairs.
- */
+Collect narrow local compound bridges used for public aliases or generic call signatures.
+@param statements Program body statements.
+@param importedBindings Runtime imports available to compound assembly.
+@returns Supported local compound bridge pairs.
+*/
 function getCompoundBridges(
   statements: readonly ProgramStatement[],
   importedBindings: ReadonlySet<string>,
@@ -301,12 +301,12 @@ function getCompoundBridges(
 }
 
 /**
- * Check whether a named export contains only type declarations, re-exports, or supported API assembly.
- * @param node Export statement to inspect.
- * @param importedBindings Runtime imports available to compound assembly.
- * @param bridges Supported typed compound bridge pairs.
- * @returns Whether the named export is valid for an index barrel.
- */
+Check whether a named export contains only type declarations, re-exports, or supported API assembly.
+@param node Export statement to inspect.
+@param importedBindings Runtime imports available to compound assembly.
+@param bridges Supported typed compound bridge pairs.
+@returns Whether the named export is valid for an index barrel.
+*/
 function isAllowedNamedExport(
   node: ProgramStatement,
   importedBindings: ReadonlySet<string>,
@@ -356,11 +356,11 @@ function isAllowedNamedExport(
 }
 
 /**
- * Check whether a local declaration is a supported typed compound bridge assembly.
- * @param node Top-level statement to inspect.
- * @param bridges Supported typed compound bridge pairs.
- * @returns Whether this declaration is owned by a supported bridge.
- */
+Check whether a local declaration is a supported typed compound bridge assembly.
+@param node Top-level statement to inspect.
+@param bridges Supported typed compound bridge pairs.
+@returns Whether this declaration is owned by a supported bridge.
+*/
 function isAllowedCompoundBridgeDeclaration(
   node: ProgramStatement,
   bridges: readonly CompoundBridge[],
@@ -383,12 +383,12 @@ function isAllowedCompoundBridgeDeclaration(
 }
 
 /**
- * Check whether a top-level statement is valid in an index barrel.
- * @param node Top-level statement to inspect.
- * @param importedBindings Runtime imports available to compound assembly.
- * @param bridges Supported typed compound bridge pairs.
- * @returns Whether the statement belongs in an index barrel.
- */
+Check whether a top-level statement is valid in an index barrel.
+@param node Top-level statement to inspect.
+@param importedBindings Runtime imports available to compound assembly.
+@param bridges Supported typed compound bridge pairs.
+@returns Whether the statement belongs in an index barrel.
+*/
 function isAllowedStatement(
   node: ProgramStatement,
   importedBindings: ReadonlySet<string>,
@@ -435,10 +435,10 @@ function isAllowedStatement(
 }
 
 /**
- * Check whether a filename belongs to an index barrel.
- * @param filename Filename reported by ESLint.
- * @returns Whether the filename without its final extension is exactly `index`.
- */
+Check whether a filename belongs to an index barrel.
+@param filename Filename reported by ESLint.
+@returns Whether the filename without its final extension is exactly `index`.
+*/
 function isIndexFile(filename: string): boolean {
   return path.parse(filename).name === "index";
 }

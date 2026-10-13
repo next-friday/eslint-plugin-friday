@@ -15,11 +15,11 @@ type ProgramExitHandler = (
 ) => void;
 
 /**
- * Attach the React component collector to a rule and pass its results on program exit.
- * @param context ESLint rule context.
- * @param onProgramExit Rule-specific check for the program and detected components.
- * @returns The collector's visitors and the program exit handler.
- */
+Attach the React component collector to a rule and pass its results on program exit.
+@param context ESLint rule context.
+@param onProgramExit Rule-specific check for the program and detected components.
+@returns The collector's visitors and the program exit handler.
+*/
 export function createFunctionComponentVisitor(
   context: Rule.RuleContext,
   onProgramExit: ProgramExitHandler,

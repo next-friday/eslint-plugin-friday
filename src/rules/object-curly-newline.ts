@@ -9,10 +9,10 @@ type ObjectExpressionNode = Rule.Node & {
 };
 
 /**
- * Enforce multiline braces for every non-empty object literal.
- * @param context Active ESLint rule context.
- * @param node Object expression to validate.
- */
+Enforce multiline braces for every non-empty object literal.
+@param context Active ESLint rule context.
+@param node Object expression to validate.
+*/
 function checkObjectExpression(context: Rule.RuleContext, node: ObjectExpressionNode): void {
   if (node.properties.length === 0) {
     return;

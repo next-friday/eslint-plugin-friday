@@ -7,11 +7,11 @@ import {getRuleDocumentationUrl} from "../utils/rule-doc-url";
 const MESSAGE_ID = "forbidNewline";
 
 /**
- * Check whether two adjacent JSX children are single-line element siblings with an empty line.
- * @param current Previous significant JSX child.
- * @param next Next significant JSX child.
- * @returns Whether the gap should be collapsed.
- */
+Check whether two adjacent JSX children are single-line element siblings with an empty line.
+@param current Previous significant JSX child.
+@param next Next significant JSX child.
+@returns Whether the gap should be collapsed.
+*/
 function canCollapseGap(current: JsxChild, next: JsxChild): boolean {
   const isCurrentElement = current.type === "JSXElement" || current.type === "JSXFragment";
   const isNextElement = next.type === "JSXElement" || next.type === "JSXFragment";
@@ -27,10 +27,10 @@ function canCollapseGap(current: JsxChild, next: JsxChild): boolean {
 }
 
 /**
- * Enforce compact spacing between adjacent single-line JSX element siblings.
- * @param context Active ESLint rule context.
- * @param children JSX children belonging to one element or fragment.
- */
+Enforce compact spacing between adjacent single-line JSX element siblings.
+@param context Active ESLint rule context.
+@param children JSX children belonging to one element or fragment.
+*/
 function checkSiblings(context: Rule.RuleContext, children: readonly JsxChild[]): void {
   const elements = children.filter(child => !isIgnorableJsxText(child));
 

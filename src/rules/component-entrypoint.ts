@@ -68,10 +68,10 @@ type ComponentCandidate = {
 const PASCAL_CASE = /^[A-Z][A-Za-z0-9]*$/u;
 
 /**
- * Get a static property key name.
- * @param property Object literal property.
- * @returns Static key name when supported.
- */
+Get a static property key name.
+@param property Object literal property.
+@returns Static key name when supported.
+*/
 function getPropertyName(property: PropertyLike): string | undefined {
   if (property.computed === true) {
     return undefined;
@@ -87,10 +87,10 @@ function getPropertyName(property: PropertyLike): string | undefined {
 }
 
 /**
- * Parse a static Object.assign component assembly.
- * @param expression Candidate initializer.
- * @returns Compound assembly details when the initializer is structurally supported.
- */
+Parse a static Object.assign component assembly.
+@param expression Candidate initializer.
+@returns Compound assembly details when the initializer is structurally supported.
+*/
 function getCompoundAssembly(
   expression: ExpressionLike | null | undefined,
 ): CompoundAssembly | undefined {
@@ -145,10 +145,10 @@ function getCompoundAssembly(
 }
 
 /**
- * Get the single const declarator from a variable declaration.
- * @param declaration Variable declaration.
- * @returns The declarator when the declaration is a single const binding.
- */
+Get the single const declarator from a variable declaration.
+@param declaration Variable declaration.
+@returns The declarator when the declaration is a single const binding.
+*/
 function getSingleConstDeclarator(
   declaration: VariableDeclarationLike,
 ): VariableDeclaratorLike | undefined {
@@ -158,10 +158,10 @@ function getSingleConstDeclarator(
 }
 
 /**
- * Collect local typed compound assemblies such as CalendarCompound.
- * @param statements Program body statements.
- * @returns Local compound assemblies by binding name.
- */
+Collect local typed compound assemblies such as CalendarCompound.
+@param statements Program body statements.
+@returns Local compound assemblies by binding name.
+*/
 function getLocalCompoundAssemblies(
   statements: readonly ProgramStatement[],
 ): ReadonlyMap<string, CompoundAssembly> {
@@ -190,11 +190,11 @@ function getLocalCompoundAssemblies(
 }
 
 /**
- * Resolve an exported component entrypoint candidate.
- * @param statement Top-level export statement.
- * @param localAssemblies Local typed compound assemblies.
- * @returns Component candidate when the export looks like a Friday component public alias.
- */
+Resolve an exported component entrypoint candidate.
+@param statement Top-level export statement.
+@param localAssemblies Local typed compound assemblies.
+@returns Component candidate when the export looks like a Friday component public alias.
+*/
 function getComponentCandidate(
   statement: ProgramStatement,
   localAssemblies: ReadonlyMap<string, CompoundAssembly>,
@@ -251,10 +251,10 @@ function getComponentCandidate(
 }
 
 /**
- * Check whether a filename belongs to a component index entrypoint.
- * @param filename Filename reported by ESLint.
- * @returns Whether the final basename is exactly index.
- */
+Check whether a filename belongs to a component index entrypoint.
+@param filename Filename reported by ESLint.
+@returns Whether the final basename is exactly index.
+*/
 function isIndexFile(filename: string): boolean {
   return path.parse(filename).name === "index";
 }

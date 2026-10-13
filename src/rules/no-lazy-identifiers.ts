@@ -50,10 +50,10 @@ type SourceCodeWithScopeManager = {
 };
 
 /**
- * Split an identifier into semantic camel-case, acronym, numeric, and separator-delimited words.
- * @param name Identifier name to split.
- * @returns Identifier word segments used for keyboard-run detection.
- */
+Split an identifier into semantic camel-case, acronym, numeric, and separator-delimited words.
+@param name Identifier name to split.
+@returns Identifier word segments used for keyboard-run detection.
+*/
 function getIdentifierWords(name: string): string[] {
   return name
     .replaceAll(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -65,10 +65,10 @@ function getIdentifierWords(name: string): string[] {
 }
 
 /**
- * Check whether an identifier contains the same character three times consecutively.
- * @param name Identifier name to inspect.
- * @returns Whether the identifier contains a repeated-character run.
- */
+Check whether an identifier contains the same character three times consecutively.
+@param name Identifier name to inspect.
+@returns Whether the identifier contains a repeated-character run.
+*/
 function hasRepeatedCharacters(name: string): boolean {
   const characters = [...name];
 
@@ -81,10 +81,10 @@ function hasRepeatedCharacters(name: string): boolean {
 }
 
 /**
- * Check whether an identifier segment is a keyboard-row run in either direction.
- * @param segment Identifier segment to inspect.
- * @returns Whether the segment is a keyboard-row run.
- */
+Check whether an identifier segment is a keyboard-row run in either direction.
+@param segment Identifier segment to inspect.
+@returns Whether the segment is a keyboard-row run.
+*/
 function isKeyboardRun(segment: string): boolean {
   const normalized = segment.toLowerCase();
 
@@ -94,10 +94,10 @@ function isKeyboardRun(segment: string): boolean {
 }
 
 /**
- * Determine whether an identifier is a lazy placeholder name.
- * @param name Identifier name to inspect.
- * @returns Whether the identifier should be rejected.
- */
+Determine whether an identifier is a lazy placeholder name.
+@param name Identifier name to inspect.
+@returns Whether the identifier should be rejected.
+*/
 function isLazyIdentifier(name: string): boolean {
   return (
     name.length >= MIN_LENGTH &&

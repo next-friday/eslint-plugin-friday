@@ -58,7 +58,7 @@
     "verify": "pnpm lint:check && pnpm format:check && pnpm sort-package-json:check && pnpm docs:check && pnpm typecheck && pnpm test:coverage && pnpm knip && pnpm build && pnpm check:publint && pnpm check:attw"
   },
   "dependencies": {
-    "@eslint-react/core": "5.24.4"
+    "@eslint-react/core": "5.26.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -83,7 +83,7 @@
     "sort-package-json": "4.0.0",
     "tsdown": "0.23.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0",
+    "typescript-eslint": "8.71.1",
     "vite": "8.3.2",
     "vitest": "5.0.3"
   },

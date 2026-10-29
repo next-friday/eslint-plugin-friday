@@ -49,7 +49,7 @@ function AccountPanel() {
 
 ## Scope and autofix
 
-The rule checks each JSX element and fragment. Among its children, whitespace-only JSX text is ignored. Non-whitespace JSX text remains a child and therefore separates JSX elements, fragments, and expression containers; the rule compares only adjacent significant children. It reports when either adjacent significant child spans multiple lines and there is no blank line between them.
+The rule checks each JSX element and fragment. Among its children, whitespace-only JSX text is ignored. Non-whitespace JSX text remains a child and therefore separates JSX elements, fragments, and expression containers; the rule compares only adjacent significant children. Prettier's inline whitespace separator `{" "}` is treated as text flow, so it also separates siblings instead of requiring blank lines around it. It reports when either adjacent significant child spans multiple lines and there is no blank line between them.
 
 For this rule, a child spans multiple lines when its start and end locations are on different source lines.
 

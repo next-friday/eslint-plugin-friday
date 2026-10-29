@@ -124,6 +124,21 @@ const nonBreakingSpaceBoundarySource = [
   "",
 ].join("\n");
 
+const inlineWhitespaceSeparatorSource = [
+  COMPONENT_OPEN,
+  "  return (",
+  "    <p>",
+  '      Head over to{" "}',
+  '      <a href="/templates">',
+  "        Templates",
+  '      </a>{" "}',
+  "      center.",
+  "    </p>",
+  "  );",
+  "}",
+  "",
+].join("\n");
+
 ruleTester.run("jsx-newline-between-elements", jsxNewlineBetweenElements, {
   valid: [
     {
@@ -140,6 +155,11 @@ ruleTester.run("jsx-newline-between-elements", jsxNewlineBetweenElements, {
       code: nonBreakingSpaceBoundarySource,
       filename,
       name: "preserves a non-breaking-space text boundary",
+    },
+    {
+      code: inlineWhitespaceSeparatorSource,
+      filename,
+      name: "keeps Prettier inline whitespace separators in text flow",
     },
   ],
   invalid: [

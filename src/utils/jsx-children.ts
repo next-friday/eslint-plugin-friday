@@ -1,6 +1,7 @@
 import type {Rule} from "eslint";
 
 export type JsxChild = {
+  expression?: {type: string; value?: unknown};
   loc: {
     end: {line: number};
     start: {column: number; line: number};

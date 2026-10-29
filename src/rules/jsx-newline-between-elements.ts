@@ -13,6 +13,20 @@ const SIGNIFICANT_JSX_CHILD_TYPES = new Set([
 ]);
 
 /**
+Check whether a child is Prettier's inline JSX whitespace separator, such as `{" "}`.
+It renders a space inside surrounding text flow, so it is not a block-level sibling.
+@param child JSX child to inspect.
+@returns Whether the child is a single-space string expression container.
+*/
+function isJsxWhitespaceSeparator(child: JsxChild): boolean {
+  return (
+    child.type === "JSXExpressionContainer" &&
+    child.expression?.type === "Literal" &&
+    child.expression.value === " "
+  );
+}
+
+/**
 Check whether adjacent significant JSX children need a separating empty line.
 @param current Previous significant JSX child.
 @param next Next significant JSX child.
@@ -21,7 +35,9 @@ Check whether adjacent significant JSX children need a separating empty line.
 function canRequireGap(current: JsxChild, next: JsxChild): boolean {
   if (
     !SIGNIFICANT_JSX_CHILD_TYPES.has(current.type) ||
-    !SIGNIFICANT_JSX_CHILD_TYPES.has(next.type)
+    !SIGNIFICANT_JSX_CHILD_TYPES.has(next.type) ||
+    isJsxWhitespaceSeparator(current) ||
+    isJsxWhitespaceSeparator(next)
   ) {
     return false;
   }

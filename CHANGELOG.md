@@ -1,5 +1,12 @@
 # @next-friday/eslint-plugin-friday
 
+## 1.1.3
+
+### Patch Changes
+
+- f9d77ec: Update the `@eslint-react/core` runtime dependency from 5.24.4 to 5.28.4.
+- 635e086: `friday/jsx-newline-between-elements` no longer requires empty lines around Prettier's inline JSX whitespace separator `{" "}`. Inline text with multi-line links, such as `Head over to{" "}<a>…</a>{" "}center.`, now passes both ESLint and Prettier instead of oscillating between their fixes.
+
 ## 1.1.2
 
 ### Patch Changes

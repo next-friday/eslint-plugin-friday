@@ -58,7 +58,7 @@
     "verify": "pnpm lint:check && pnpm format:check && pnpm sort-package-json:check && pnpm docs:check && pnpm typecheck && pnpm test:coverage && pnpm knip && pnpm build && pnpm check:publint && pnpm check:attw"
   },
   "dependencies": {
-    "@eslint-react/core": "5.24.4"
+    "@eslint-react/core": "5.28.4"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -68,7 +68,7 @@
     "@eslint/js": "10.0.1",
     "@types/node": "26.6.5",
     "@vitest/coverage-v8": "5.0.5",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-doc-generator": "3.7.1",
     "eslint-plugin-eslint-plugin": "7.6.2",
@@ -83,7 +83,7 @@
     "sort-package-json": "4.0.0",
     "tsdown": "0.23.1",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0",
+    "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
     "vitest": "5.0.5"
   },

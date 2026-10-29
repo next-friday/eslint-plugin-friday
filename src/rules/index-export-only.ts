@@ -200,9 +200,9 @@ function getExportedConstDeclarator(node: ProgramStatement): VariableDeclaratorL
 
   const declaration = node.declaration as VariableDeclarationLike;
 
-  return declaration.kind !== "const" || declaration.declarations?.length !== 1
-    ? undefined
-    : declaration.declarations[0];
+  return declaration.kind === "const" && declaration.declarations?.length === 1
+    ? declaration.declarations[0]
+    : undefined;
 }
 
 /**

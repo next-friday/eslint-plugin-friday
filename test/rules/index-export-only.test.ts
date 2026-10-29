@@ -117,6 +117,20 @@ const REPORTED_CASES = [
     name: "runtime constant",
   },
   {
+    code: [
+      'import {AccordionRoot} from "./accordion";',
+      "export let Accordion = AccordionRoot;",
+    ].join("\n"),
+    name: "mutable export of an imported component",
+  },
+  {
+    code: [
+      'import {AccordionRoot, TabsRoot} from "./components";',
+      "export const Accordion = AccordionRoot, Tabs = TabsRoot;",
+    ].join("\n"),
+    name: "multiple exported declarators",
+  },
+  {
     code: "import Alias = Namespace.Member;\n",
     name: "TypeScript entity-name import alias",
   },
